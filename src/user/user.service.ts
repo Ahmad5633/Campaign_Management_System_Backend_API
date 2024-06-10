@@ -14,6 +14,16 @@ export class UserService {
         return await createdUser.save();
     }
 
+    // async createUser(username: string, password: string, roles: string[] = ['advertiser']): Promise<User> {
+    //     const hashedPassword = await bcrypt.hash(password, 10);
+    //     const newUser = new this.userModel({ username, password: hashedPassword, roles });
+    //     return newUser.save();
+    //   }
+    
+      async findUser(username: string): Promise<User | undefined> {
+        return this.userModel.findOne({ username }).exec();
+      }
+
     async findUserByEmail(email: string): Promise<User | null> {
         return this.userModel.findOne({ email }).exec();
     }
