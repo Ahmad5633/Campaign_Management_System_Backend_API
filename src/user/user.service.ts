@@ -13,36 +13,7 @@ export class UserService {
         console.log(createdUser);
         return await createdUser.save();
     }
-
-    // async createUser(username: string, password: string, roles: string[] = ['advertiser']): Promise<User> {
-    //     const hashedPassword = await bcrypt.hash(password, 10);
-    //     const newUser = new this.userModel({ username, password: hashedPassword, roles });
-    //     return newUser.save();
-    //   }
     
-      async findUser(username: string): Promise<User | undefined> {
-        return this.userModel.findOne({ username }).exec();
-      }
-
-    async findUserByEmail(email: string): Promise<User | null> {
-        return this.userModel.findOne({ email }).exec();
-    }
-
-    async updateUser(id: string, updateUserDto: Partial<User>): Promise<User> {
-        if (updateUserDto.password) {
-            updateUserDto.password = await this.hashPassword(updateUserDto.password);
-        }
-        return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).exec();
-    }
-
-    async deleteUser(id: string): Promise<User> {
-        return this.userModel.findByIdAndDelete(id).exec();
-    }
-
-    async getAllUsers(): Promise<User[]> {
-        return this.userModel.find().exec();
-    }
-
     async updatePasswordByEmail(email: string, newPassword: string): Promise<string> {
         const hashedPassword = await this.hashPassword(newPassword);
         await this.userModel.updateOne({ email }, { password: hashedPassword }).exec();
