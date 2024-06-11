@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { ForgetPasswordModule } from './resetPassword/forget-password.module';
 import { LoginAuthModule } from './login/auth.module';
 import { GoogleAuthModule } from './auth/auth.module';
+import { AdvertiserModule } from './advertiser/advertiser.module';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/compaign-management-db'),
@@ -13,6 +14,7 @@ import { GoogleAuthModule } from './auth/auth.module';
     ForgetPasswordModule,
     LoginAuthModule,
     GoogleAuthModule,
+    AdvertiserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
