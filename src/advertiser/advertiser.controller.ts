@@ -1,20 +1,3 @@
-// import { Controller, Post, Body } from '@nestjs/common';
-// import { AdvertiserService } from './advertiser.service';
-// import { CreateAdvertiserDto } from './dto/create-advertiser.dto';
-// import { Advertiser } from './advertiser.schema';
-
-// @Controller('advertisers')
-// export class AdvertiserController {
-//   constructor(private readonly advertiserService: AdvertiserService) {}
-
-//   @Post()
-//   async create(@Body() createAdvertiserDto: CreateAdvertiserDto): Promise<Advertiser> {
-//     return this.advertiserService.create(createAdvertiserDto);
-//   }
-
-// }
-
-
 import {
     Controller,
     Post,
