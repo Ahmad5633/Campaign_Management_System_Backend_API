@@ -10,11 +10,11 @@ export class AdvertiserService {
     @InjectModel(Advertiser.name) private advertiserModel: Model<AdvertiserDocument>,
   ) {}
 
-  async create(createAdvertiserDto: CreateAdvertiserDto, filePath: string): Promise<Advertiser> {
+  async create(createAdvertiserDto: CreateAdvertiserDto): Promise<Advertiser> {
     const createdAdvertiser = new this.advertiserModel({
-      ...createAdvertiserDto,
-      logo: filePath,
+      ...createAdvertiserDto
     });
     return createdAdvertiser.save();
   }
+
 }

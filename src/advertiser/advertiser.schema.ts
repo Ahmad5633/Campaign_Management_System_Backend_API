@@ -69,6 +69,9 @@ export class Advertiser {
 
   @Prop({ required: true})
   mediaIntercept: string;
+
+  @Prop()
+  dropFileHere: [string];
 }
 
 export const AdvertiserSchema = SchemaFactory.createForClass(Advertiser);
