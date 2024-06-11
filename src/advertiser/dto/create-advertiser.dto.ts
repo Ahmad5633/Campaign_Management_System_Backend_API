@@ -87,4 +87,8 @@ export class CreateAdvertiserDto {
   @IsString()
   @IsNotEmpty()
   mediaIntercept: string;
+
+  @IsOptional()
+  @IsString()
+  dropFileHere?: string;
 }
