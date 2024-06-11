@@ -8,6 +8,7 @@ import { LoginAuthModule } from './login/auth.module';
 import { GoogleAuthModule } from './auth/auth.module';
 import { AdvertiserModule } from './advertiser/advertiser.module';
 import { PublisherModule } from './publisher/publisher.module';
+import { CampaignModule } from './campaign/campaign.module';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/compaign-management-db'),
@@ -17,6 +18,7 @@ import { PublisherModule } from './publisher/publisher.module';
     GoogleAuthModule,
     AdvertiserModule,
     PublisherModule,
+    CampaignModule,
   ],
   controllers: [AppController],
   providers: [AppService],
