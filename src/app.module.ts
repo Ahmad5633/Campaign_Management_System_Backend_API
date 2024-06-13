@@ -11,14 +11,14 @@ import { PublisherModule } from './publisher/publisher.module';
 import { CampaignModule } from './campaign/campaign.module';
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGO_URI),
-    // UserModule,
-    // ForgetPasswordModule,
-    // LoginAuthModule,
-    // GoogleAuthModule,
-    // AdvertiserModule,
-    // PublisherModule,
-    // CampaignModule,
+    // MongooseModule.forRoot(process.env.MONGO_URI),
+    UserModule,
+    ForgetPasswordModule,
+    LoginAuthModule,
+    GoogleAuthModule,
+    AdvertiserModule,
+    PublisherModule,
+    CampaignModule,
   ],
   controllers: [AppController],
   providers: [AppService],
