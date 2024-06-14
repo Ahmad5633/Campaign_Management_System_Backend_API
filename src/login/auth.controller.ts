@@ -7,7 +7,7 @@ import { UserService } from '../user/user.service';
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private usersService: UserService
+    private usersService: UserService,
   ) {}
 
   @UseGuards(LocalAuthGuard)

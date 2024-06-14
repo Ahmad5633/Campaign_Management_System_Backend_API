@@ -1,6 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-import { VerticalPropertyName, PlacementType, LogoRequired, CBD } from './enums';
+import {
+  VerticalPropertyName,
+  PlacementType,
+  LogoRequired,
+  CBD,
+} from './enums';
 
 @Schema()
 export class Publisher {

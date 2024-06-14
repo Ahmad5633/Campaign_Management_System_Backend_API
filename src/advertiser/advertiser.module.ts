@@ -6,7 +6,9 @@ import { Advertiser, AdvertiserSchema } from './advertiser.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Advertiser.name, schema: AdvertiserSchema }]),
+    MongooseModule.forFeature([
+      { name: Advertiser.name, schema: AdvertiserSchema },
+    ]),
   ],
   controllers: [AdvertiserController],
   providers: [AdvertiserService],

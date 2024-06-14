@@ -1,4 +1,3 @@
-// src/campaign/schemas/campaign.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -50,7 +49,7 @@ export class Campaign {
 
   @Prop({ required: true })
   adGoal: string;
-  
+
   @Prop()
   shareLink: string;
 }

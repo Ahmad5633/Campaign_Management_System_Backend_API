@@ -7,14 +7,14 @@ import { CreatePublisherDto } from './dto/create-publisher.dto';
 @Injectable()
 export class PublisherService {
   constructor(
-    @InjectModel(Publisher.name) private publisherModel: Model<PublisherDocument>,
+    @InjectModel(Publisher.name)
+    private publisherModel: Model<PublisherDocument>,
   ) {}
 
   async create(createPublisherDto: CreatePublisherDto): Promise<Publisher> {
-    const createdPublisher = new this.publisherModel({ 
-      ...createPublisherDto
+    const createdPublisher = new this.publisherModel({
+      ...createPublisherDto,
     });
     return createdPublisher.save();
   }
-
 }
