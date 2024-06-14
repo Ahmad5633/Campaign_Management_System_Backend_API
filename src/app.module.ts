@@ -9,6 +9,7 @@ import { GoogleAuthModule } from './auth/auth.module';
 import { AdvertiserModule } from './advertiser/advertiser.module';
 import { PublisherModule } from './publisher/publisher.module';
 import { CampaignModule } from './campaign/campaign.module';
+import { PlacementModule } from './placement/placement.module';
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGO_URI),
@@ -19,6 +20,7 @@ import { CampaignModule } from './campaign/campaign.module';
     AdvertiserModule,
     PublisherModule,
     CampaignModule,
+    PlacementModule,
   ],
   controllers: [AppController],
   providers: [AppService],

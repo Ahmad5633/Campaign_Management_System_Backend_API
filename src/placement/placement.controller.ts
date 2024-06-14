@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Request } from '@nestjs/common';
 import { PlacementService } from './placement.service';
 import { CreatePlacementDto } from './dto/create-placement.dto';
 
@@ -15,5 +15,4 @@ export class PlacementController {
   async findAll() {
     return this.placementService.findAll();
   }
-
 }
