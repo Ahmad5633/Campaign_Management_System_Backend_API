@@ -6,7 +6,9 @@ import { Publisher, PublisherSchema } from './publisher.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Publisher.name, schema: PublisherSchema }]),
+    MongooseModule.forFeature([
+      { name: Publisher.name, schema: PublisherSchema },
+    ]),
   ],
   controllers: [PublisherController],
   providers: [PublisherService],

@@ -1,5 +1,16 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsUrl } from 'class-validator';
-import { VerticalPropertyName, PlacementType, LogoRequired, CBD } from '../enums';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsUrl,
+} from 'class-validator';
+import {
+  VerticalPropertyName,
+  PlacementType,
+  LogoRequired,
+  CBD,
+} from '../enums';
 
 export class CreatePublisherDto {
   @IsString()

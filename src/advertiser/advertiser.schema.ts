@@ -3,14 +3,13 @@ import { Document, Schema as MongooseSchema } from 'mongoose';
 
 @Schema()
 export class Advertiser {
-
   @Prop({ required: true })
   advertiserName: string;
 
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true})
+  @Prop({ required: true })
   email: string;
 
   @Prop({ required: true })
@@ -35,7 +34,7 @@ export class Advertiser {
   landingPage: string;
 
   @Prop({ required: true })
-  UTM : string;
+  UTM: string;
 
   @Prop()
   promoCode: string;
@@ -67,7 +66,7 @@ export class Advertiser {
   @Prop()
   specificUTMParameters: string;
 
-  @Prop({ required: true})
+  @Prop({ required: true })
   mediaIntercept: string;
 
   @Prop()

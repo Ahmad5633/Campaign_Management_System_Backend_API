@@ -7,14 +7,14 @@ import { CreateAdvertiserDto } from './dto/create-advertiser.dto';
 @Injectable()
 export class AdvertiserService {
   constructor(
-    @InjectModel(Advertiser.name) private advertiserModel: Model<AdvertiserDocument>,
+    @InjectModel(Advertiser.name)
+    private advertiserModel: Model<AdvertiserDocument>,
   ) {}
 
   async create(createAdvertiserDto: CreateAdvertiserDto): Promise<Advertiser> {
     const createdAdvertiser = new this.advertiserModel({
-      ...createAdvertiserDto
+      ...createAdvertiserDto,
     });
     return createdAdvertiser.save();
   }
-
 }

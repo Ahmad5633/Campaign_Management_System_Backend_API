@@ -1,4 +1,3 @@
-// src/campaign/dto/create-campaign.dto.ts
 import { IsString, IsNotEmpty, IsDateString } from 'class-validator';
 
 export class CreateCampaignDto {
