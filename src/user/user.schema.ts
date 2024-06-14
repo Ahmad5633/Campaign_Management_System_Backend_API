@@ -14,6 +14,21 @@ export class User {
 
   @Prop({ required: true, default: ['advertiser'] })
   role: [string];
+
+  @Prop()
+  filename: string;
+
+  @Prop()
+  originalname: string;
+
+  @Prop()
+  mimetype: string;
+
+  @Prop()
+  size: number;
+
+  @Prop()
+  buffer: Buffer;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
