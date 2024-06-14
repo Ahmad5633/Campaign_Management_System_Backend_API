@@ -10,6 +10,7 @@ import { AdvertiserModule } from './advertiser/advertiser.module';
 import { PublisherModule } from './publisher/publisher.module';
 import { CampaignModule } from './campaign/campaign.module';
 import { PlacementModule } from './placement/placement.module';
+import { ComplaintsModule } from './complain/complaints.module';
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGO_URI),
@@ -21,6 +22,7 @@ import { PlacementModule } from './placement/placement.module';
     PublisherModule,
     CampaignModule,
     PlacementModule,
+    ComplaintsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
