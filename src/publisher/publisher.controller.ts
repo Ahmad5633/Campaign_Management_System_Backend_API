@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Body,
+  Get,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -59,5 +60,10 @@ export class PublisherController {
     @UploadedFiles() files: Array<Express.Multer.File>,
   ): Promise<Publisher> {
     return this.publisherService.create(createPublisherDto);
+  }
+
+  @Get()
+  async findAll() {
+    return this.publisherService.findAll();
   }
 }

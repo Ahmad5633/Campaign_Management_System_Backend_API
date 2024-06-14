@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Body,
+  Get,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -56,5 +57,10 @@ export class AdvertiserController {
     @UploadedFiles() files: Array<Express.Multer.File>,
   ): Promise<Advertiser> {
     return this.advertiserService.create(createAdvertiserDto);
+  }
+
+  @Get()
+  async findAll() {
+    return this.advertiserService.findAll();
   }
 }

@@ -17,4 +17,8 @@ export class PublisherService {
     });
     return createdPublisher.save();
   }
+
+  async findAll(): Promise<Publisher[]> {
+    return this.publisherModel.find().exec();
+  }
 }

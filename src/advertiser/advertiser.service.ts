@@ -17,4 +17,8 @@ export class AdvertiserService {
     });
     return createdAdvertiser.save();
   }
+
+  async findAll(): Promise<Advertiser[]> {
+    return this.advertiserModel.find().exec();
+  }
 }
