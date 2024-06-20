@@ -9,7 +9,7 @@ export const ComplaintSchema = new mongoose.Schema(
     description: { type: String, required: true },
   },
   { timestamps: true },
-); // Include timestamps for createdAt and updatedAt
+);
 
 export interface Complaint extends mongoose.Document {
   id: string;

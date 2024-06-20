@@ -1,5 +1,3 @@
-// src/payment/payment.module.ts
-
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PaymentMethodSchema } from './payment-method.schema';

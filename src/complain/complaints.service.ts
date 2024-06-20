@@ -1,21 +1,3 @@
-// import { Injectable } from '@nestjs/common';
-// import { CreateComplaintDto } from './dto/create-complaint.dto';
-
-// @Injectable()
-// export class ComplaintsService {
-//   private complaints: CreateComplaintDto[] = [];
-
-//   createComplaint(createComplaintDto: CreateComplaintDto) {
-//     const newComplaint = { ...createComplaintDto };
-//     this.complaints.push(newComplaint);
-//     return newComplaint;
-//   }
-
-//   getAllComplaints() {
-//     return this.complaints;
-//   }
-// }
-
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
