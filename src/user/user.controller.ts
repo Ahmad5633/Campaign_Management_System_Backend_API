@@ -15,6 +15,9 @@ import { Response } from 'express';
 import { FileUploadService } from './fileupload.service';
 import { FileDownloadService } from './fileDownload.service';
 
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+
+@ApiTags('Users')
 @Controller('users')
 export class UserController {
   constructor(
@@ -24,6 +27,7 @@ export class UserController {
   ) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new User' })
   async createUser(@Body() user: User): Promise<User> {
     return this.userService.createUser(user);
   }
