@@ -1,4 +1,3 @@
-// src/placement/placement.module.ts
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PlacementService } from './placement.service';
@@ -7,7 +6,9 @@ import { Placement, PlacementSchema } from './placement.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Placement.name, schema: PlacementSchema }]),
+    MongooseModule.forFeature([
+      { name: Placement.name, schema: PlacementSchema },
+    ]),
   ],
   controllers: [PlacementController],
   providers: [PlacementService],
