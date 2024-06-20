@@ -11,6 +11,7 @@ import { PublisherModule } from './publisher/publisher.module';
 import { CampaignModule } from './campaign/campaign.module';
 import { PlacementModule } from './placement/placement.module';
 import { ComplaintsModule } from './complain/complaints.module';
+import { PaymentModule } from './payment/payment.module';
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGO_URI),
@@ -23,6 +24,7 @@ import { ComplaintsModule } from './complain/complaints.module';
     CampaignModule,
     PlacementModule,
     ComplaintsModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

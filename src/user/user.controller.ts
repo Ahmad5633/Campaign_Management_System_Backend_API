@@ -59,4 +59,14 @@ export class UserController {
     );
     res.send(file.buffer);
   }
+
+  @Get('advertisers')
+  async getAllAdvertisers(): Promise<User[]> {
+    return this.userService.findAllAdvertisers();
+  }
+
+  @Get('publishers')
+  async getAllPublishers(): Promise<User[]> {
+    return this.userService.findAllPublishers();
+  }
 }

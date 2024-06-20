@@ -50,4 +50,12 @@ export class UserService {
     const user = await this.userModel.findOne({ email }).exec();
     return !!user;
   }
+
+  async findAllAdvertisers(): Promise<User[]> {
+    return this.userModel.find({ role: 'advertiser' }).exec();
+  }
+
+  async findAllPublishers(): Promise<User[]> {
+    return this.userModel.find({ role: 'publisher' }).exec();
+  }
 }
