@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "start": "nest start",
+    "start": "nest dist/main",
     "build": "nest build",
     "postinstall": "nest build",
     "start:prod": "node dist/main.js",
@@ -50,7 +50,7 @@
     "rxjs": "^7.8.1",
     "socket.io-client": "^4.7.5",
     "stripe": "^15.12.0",
-    "swagger-ui-express": "^4.6.2"
+    "swagger-ui-express": "^4.6.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
