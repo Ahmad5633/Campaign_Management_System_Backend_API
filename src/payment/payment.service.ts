@@ -1,5 +1,3 @@
-// src/payment/payment.service.ts
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -15,7 +13,7 @@ export class PaymentService {
     private readonly paymentMethodModel: Model<PaymentMethod>,
   ) {
     this.stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-04-10', // Replace with your preferred Stripe API version
+      apiVersion: '2024-04-10',
     });
   }
 
@@ -41,7 +39,6 @@ export class PaymentService {
   ): Promise<Stripe.PaymentIntent> {
     const paymentMethod = await this.getPaymentMethodById(paymentMethodId);
 
-    // Create payment method on Stripe
     const stripePaymentMethod = await this.stripeClient.paymentMethods.create({
       type: 'card',
       card: {
@@ -52,7 +49,6 @@ export class PaymentService {
       },
     });
 
-    // Create payment intent with Stripe
     const paymentIntent = await this.stripeClient.paymentIntents.create({
       amount,
       currency,
