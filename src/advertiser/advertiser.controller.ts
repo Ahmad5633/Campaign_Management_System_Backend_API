@@ -8,6 +8,7 @@ import {
   UseGuards,
   Delete,
   Param,
+  Patch,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { AdvertiserService } from './advertiser.service';
@@ -111,5 +112,18 @@ export class AdvertiserController {
   async deleteAdvertiser(@Param('id') id: string): Promise<string> {
     const message = await this.advertiserService.deleteAdvertiser(id);
     return message;
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Update an Advertiser by ID' })
+  @ApiResponse({ status: 200, description: 'Advertiser updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid input.' })
+  async partialUpdate(
+    @Param('id') id: string,
+    @Body() updateAdvertiserDto: CreateAdvertiserDto,
+  ): Promise<Advertiser> {
+    return this.advertiserService.partialUpdate(id, updateAdvertiserDto);
   }
 }

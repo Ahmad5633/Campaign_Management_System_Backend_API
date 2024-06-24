@@ -8,6 +8,7 @@ import {
   Delete,
   Param,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { PublisherService } from './publisher.service';
@@ -108,5 +109,18 @@ export class PublisherController {
   async deletePublisher(@Param('id') id: string): Promise<string> {
     const message = await this.publisherService.deletePublisher(id);
     return message;
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Update an Publisher by ID' })
+  @ApiResponse({ status: 200, description: 'Publisher updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid input.' })
+  async partialUpdate(
+    @Param('id') id: string,
+    @Body() updatePublisherDto: CreatePublisherDto,
+  ): Promise<Publisher> {
+    return this.publisherService.partialUpdate(id, updatePublisherDto);
   }
 }
