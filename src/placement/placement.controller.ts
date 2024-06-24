@@ -48,17 +48,17 @@ export class PlacementController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Delete a Campaign by its ID (admin only)' })
+  @ApiOperation({ summary: 'Delete a Placemenet by its ID (admin only)' })
   @ApiParam({
     name: 'id',
     required: true,
-    description: 'The ID of the campaign to delete',
+    description: 'The ID of the palcement to delete',
   })
-  @ApiResponse({ status: 204, description: 'Campaign deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Campaign not found' })
+  @ApiResponse({ status: 204, description: 'Placement deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Placement not found' })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized: Only admin can delete this campaign',
+    description: 'Unauthorized: Only admin can delete this placemnet',
   })
   async deletePlacement(@Param('id') id: string): Promise<string> {
     const message = await this.placementService.deletePlacement(id);

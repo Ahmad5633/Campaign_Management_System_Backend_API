@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Publisher, PublisherDocument } from './publisher.schema';
@@ -20,5 +20,17 @@ export class PublisherService {
 
   async findAll(): Promise<Publisher[]> {
     return this.publisherModel.find().exec();
+  }
+
+  async deletePublisher(id: string): Promise<string> {
+    const deletedPlacement = await this.publisherModel
+      .findByIdAndDelete(id)
+      .exec();
+
+    if (!deletedPlacement) {
+      throw new NotFoundException('Placement not found');
+    }
+
+    return `Placement with ID ${id} has been successfully deleted`;
   }
 }
