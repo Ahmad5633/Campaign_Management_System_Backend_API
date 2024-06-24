@@ -33,4 +33,21 @@ export class PublisherService {
 
     return `Placement with ID ${id} has been successfully deleted`;
   }
+
+  async partialUpdate(
+    id: string,
+    updateDto: CreatePublisherDto,
+  ): Promise<Publisher> {
+    const updatedPublisher = await this.publisherModel.findByIdAndUpdate(
+      id,
+      { $set: updateDto },
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedPublisher) {
+      throw new NotFoundException(`Advertiser with ID ${id} not found`);
+    }
+
+    return updatedPublisher;
+  }
 }

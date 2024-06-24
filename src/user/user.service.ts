@@ -14,11 +14,11 @@ export class UserService {
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<User> {
-    const { username, password, email, role } = createUserDto;
+    const { name, password, email, role } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new this.userModel({
-      username,
+      name,
       password: hashedPassword,
       email,
       role,
@@ -39,15 +39,6 @@ export class UserService {
     const accessToken = this.jwtService.sign(payload);
 
     return { accessToken };
-  }
-  async createUser(user: User): Promise<User> {
-    const hashedPassword = await this.hashPassword(user.password);
-    const createdUser = new this.userModel({
-      ...user,
-      password: hashedPassword,
-    });
-    console.log(createdUser);
-    return await createdUser.save();
   }
 
   async updatePasswordByEmail(

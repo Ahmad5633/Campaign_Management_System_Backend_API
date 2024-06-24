@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { PlacementService } from './placement.service';
 import { CreatePlacementDto } from './dto/create-placement.dto';
-import { Roles } from '../login/roles.decorator';
+import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
-import { JwtAuthGuard } from '../login/jwt-auth.guard';
+import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import {
   ApiTags,
   ApiOperation,
