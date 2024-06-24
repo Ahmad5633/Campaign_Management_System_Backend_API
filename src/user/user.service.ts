@@ -40,15 +40,6 @@ export class UserService {
 
     return { accessToken };
   }
-  async createUser(user: User): Promise<User> {
-    const hashedPassword = await this.hashPassword(user.password);
-    const createdUser = new this.userModel({
-      ...user,
-      password: hashedPassword,
-    });
-    console.log(createdUser);
-    return await createdUser.save();
-  }
 
   async updatePasswordByEmail(
     email: string,

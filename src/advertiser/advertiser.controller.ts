@@ -16,9 +16,9 @@ import { CreateAdvertiserDto } from './dto/create-advertiser.dto';
 import { Advertiser } from './advertiser.schema';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { Roles } from '../login/roles.decorator';
+import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
-import { JwtAuthGuard } from '../login/jwt-auth.guard';
+import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import {
   ApiTags,
   ApiOperation,

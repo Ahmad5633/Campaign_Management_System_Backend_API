@@ -42,13 +42,13 @@ import { PassportModule } from '@nestjs/passport';
     ConfigModule.forRoot(),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.register({
-      secret: 'secretKey', // Use a better secret key in production
+      secret: 'secretKey',
       signOptions: { expiresIn: '60m' },
     }),
     PassportModule,
   ],
   controllers: [UserController],
   providers: [UserService, FileUploadService, FileDownloadService],
-  exports: [UserService], // Exporting UserService if needed by other modules
+  exports: [UserService],
 })
 export class UserModule {}
