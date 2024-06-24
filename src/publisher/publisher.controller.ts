@@ -19,6 +19,7 @@ import { extname } from 'path';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
+import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -92,7 +93,7 @@ export class PublisherController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Delete a Publisher by its ID (admin only)' })
   @ApiParam({
@@ -112,7 +113,7 @@ export class PublisherController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Update an Publisher by ID' })
   @ApiResponse({ status: 200, description: 'Publisher updated successfully.' })

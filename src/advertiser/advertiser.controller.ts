@@ -19,6 +19,7 @@ import { extname } from 'path';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
+import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -95,7 +96,7 @@ export class AdvertiserController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Delete a Advertiser by its ID (admin only)' })
   @ApiParam({
@@ -115,7 +116,7 @@ export class AdvertiserController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Update an Advertiser by ID' })
   @ApiResponse({ status: 200, description: 'Advertiser updated successfully.' })
