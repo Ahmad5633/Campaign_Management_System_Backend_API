@@ -12,12 +12,28 @@ import { CreateAdvertiserDto } from './dto/create-advertiser.dto';
 import { Advertiser } from './advertiser.schema';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiConsumes,
+  ApiBody,
+  ApiResponse,
+} from '@nestjs/swagger';
 
+@ApiTags('Advertisers')
 @Controller('advertisers')
 export class AdvertiserController {
   constructor(private readonly advertiserService: AdvertiserService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new Advertiser' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Create Advertiser',
+    type: CreateAdvertiserDto,
+  })
+  @ApiResponse({ status: 201, description: 'Advertiser created successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid input.' })
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -54,12 +70,18 @@ export class AdvertiserController {
   )
   async create(
     @Body() createAdvertiserDto: CreateAdvertiserDto,
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles()
+    files: {
+      logo?: Express.Multer.File[];
+      dropFileHere?: Express.Multer.File[];
+    },
   ): Promise<Advertiser> {
     return this.advertiserService.create(createAdvertiserDto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Retrieve all Advertisers' })
+  @ApiResponse({ status: 200, description: 'List of all advertisers.' })
   async findAll() {
     return this.advertiserService.findAll();
   }

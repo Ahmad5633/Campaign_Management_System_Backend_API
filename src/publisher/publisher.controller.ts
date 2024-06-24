@@ -12,12 +12,21 @@ import { CreatePublisherDto } from './dto/create-publisher.dto';
 import { Publisher } from './publisher.schema';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
+@ApiTags('Publishers')
 @Controller('publishers')
 export class PublisherController {
   constructor(private readonly publisherService: PublisherService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new publisher' })
+  @ApiBody({
+    description: 'Details of the new publisher and files to upload',
+    type: CreatePublisherDto,
+  })
+  @ApiResponse({ status: 201, description: 'Publisher created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -63,6 +72,8 @@ export class PublisherController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Retrieve all publishers' })
+  @ApiResponse({ status: 200, description: 'List of all publishers' })
   async findAll() {
     return this.publisherService.findAll();
   }
