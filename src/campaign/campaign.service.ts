@@ -15,16 +15,12 @@ export class CampaignService {
   async createCampaign(
     createCampaignDto: CreateCampaignDto,
   ): Promise<CampaignDocument> {
-    const shareLink = this.generateShareableLink();
-    const newCampaign = new this.campaignModel({
-      ...createCampaignDto,
-      shareLink,
-    });
-    return await newCampaign.save();
-  }
+    const newCampaign = new this.campaignModel(createCampaignDto);
+    const savedCampaign = await newCampaign.save();
+    savedCampaign.shareLink = `http://yourdomain.com/campaign/${savedCampaign._id}`;
+    await savedCampaign.save();
 
-  private generateShareableLink(): string {
-    return `http://yourdomain.com/campaign/${uuidv4()}`;
+    return savedCampaign;
   }
 
   async findAll(): Promise<Campaign[]> {
@@ -32,12 +28,14 @@ export class CampaignService {
   }
 
   async findByShareLink(id: string): Promise<Campaign> {
-    const campaign = await this.campaignModel
-      .findOne({ shareLink: `https://yourdomain.com/campaign/${id}` })
-      .exec();
+    const campaign = await this.campaignModel.findById(id).exec();
     if (!campaign) {
       throw new NotFoundException('Campaign not found');
     }
     return campaign;
+  }
+
+  async deleteCampaign(id: string): Promise<Campaign> {
+    return await this.campaignModel.findByIdAndDelete(id);
   }
 }
