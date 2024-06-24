@@ -8,7 +8,9 @@ import {
 import { ForgetPasswordService } from './forget-password.service';
 import { UpdatePasswordService } from './update-password.service';
 import { UserService } from '../user/user.service';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
+@ApiTags('Password')
 @Controller('password')
 export class ForgetPasswordController {
   constructor(
@@ -18,6 +20,17 @@ export class ForgetPasswordController {
   ) {}
 
   @Post('forget')
+  @ApiOperation({ summary: 'Send OTP for password reset' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { email: { type: 'string' } },
+      required: ['email'],
+    },
+  })
+  @ApiResponse({ status: 200, description: 'OTP sent successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid email address' })
+  @ApiResponse({ status: 500, description: 'Failed to send OTP' })
   async sendOtp(@Body() body: { email: string }): Promise<string> {
     const { email } = body;
     const isValidUser = await this.userService.isValidUser(email);
@@ -48,6 +61,23 @@ export class ForgetPasswordController {
   }
 
   @Post('update')
+  @ApiOperation({ summary: 'Update password using OTP' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string' },
+        otp: { type: 'string' },
+        newPassword: { type: 'string' },
+      },
+      required: ['email', 'otp', 'newPassword'],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password has been updated successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid OTP or email address' })
   async updatePassword(
     @Body()
     {
@@ -61,6 +91,6 @@ export class ForgetPasswordController {
     },
   ): Promise<string> {
     await this.updatePasswordService.updatePassword(email, otp, newPassword);
-    return 'Password has been updated successfully...';
+    return 'Password has been updated successfully';
   }
 }

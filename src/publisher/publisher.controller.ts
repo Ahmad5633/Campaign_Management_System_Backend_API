@@ -5,6 +5,9 @@ import {
   Get,
   UploadedFiles,
   UseInterceptors,
+  Delete,
+  Param,
+  UseGuards,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { PublisherService } from './publisher.service';
@@ -12,12 +15,30 @@ import { CreatePublisherDto } from './dto/create-publisher.dto';
 import { Publisher } from './publisher.schema';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { Roles } from '../login/roles.decorator';
+import { UserRole } from '../user/user-role.enum';
+import { JwtAuthGuard } from '../login/jwt-auth.guard';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 
+@ApiTags('Publishers')
 @Controller('publishers')
 export class PublisherController {
   constructor(private readonly publisherService: PublisherService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new publisher' })
+  @ApiBody({
+    description: 'Details of the new publisher and files to upload',
+    type: CreatePublisherDto,
+  })
+  @ApiResponse({ status: 201, description: 'Publisher created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input' })
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -63,7 +84,29 @@ export class PublisherController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Retrieve all publishers' })
+  @ApiResponse({ status: 200, description: 'List of all publishers' })
   async findAll() {
     return this.publisherService.findAll();
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  @ApiOperation({ summary: 'Delete a Publisher by its ID (admin only)' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'The ID of the publisher to delete',
+  })
+  @ApiResponse({ status: 204, description: 'Publisher deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Publisher not found' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized: Only admin can delete this publiasher',
+  })
+  async deletePublisher(@Param('id') id: string): Promise<string> {
+    const message = await this.publisherService.deletePublisher(id);
+    return message;
   }
 }
