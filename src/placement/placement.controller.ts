@@ -13,6 +13,7 @@ import { CreatePlacementDto } from './dto/create-placement.dto';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
+import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -46,7 +47,7 @@ export class PlacementController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Delete a Placemenet by its ID (admin only)' })
   @ApiParam({
