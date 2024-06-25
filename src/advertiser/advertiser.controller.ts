@@ -20,6 +20,7 @@ import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
+import * as fs from 'fs';
 import {
   ApiTags,
   ApiOperation,
@@ -52,13 +53,23 @@ export class AdvertiserController {
       {
         storage: diskStorage({
           destination: (req, file, cb) => {
+            let uploadPath: string;
+
             if (file.fieldname === 'logo') {
-              cb(null, './uploads/advertiser/logos');
+              uploadPath = './uploads/advertiser/logos';
             } else if (file.fieldname === 'dropFileHere') {
-              cb(null, './uploads/advertiser/dropfiles');
+              uploadPath = './uploads/advertiser/dropfiles';
             } else {
               cb(new Error('Unknown file field'), null);
+              return;
             }
+
+            // Ensure the directory exists
+            if (!fs.existsSync(uploadPath)) {
+              fs.mkdirSync(uploadPath, { recursive: true });
+            }
+
+            cb(null, uploadPath);
           },
           filename: (req, file, cb) => {
             const uniqueSuffix =
@@ -85,6 +96,7 @@ export class AdvertiserController {
       dropFileHere?: Express.Multer.File[];
     },
   ): Promise<Advertiser> {
+    // Handle file information here if needed
     return this.advertiserService.create(createAdvertiserDto);
   }
 
