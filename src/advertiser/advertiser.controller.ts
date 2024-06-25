@@ -21,6 +21,7 @@ import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import * as fs from 'fs';
+import * as path from 'path';
 import {
   ApiTags,
   ApiOperation,
@@ -63,10 +64,16 @@ export class AdvertiserController {
               cb(new Error('Unknown file field'), null);
               return;
             }
+            fs.mkdirSync('./uploads', { recursive: true });
+            fs.mkdirSync('./uploads/advertiser', { recursive: true });
+            if (file.fieldname === 'logo') {
+              fs.mkdirSync('./uploads/advertiser/logos', { recursive: true });
+            }
 
-            // Ensure the directory exists
-            if (!fs.existsSync(uploadPath)) {
-              fs.mkdirSync(uploadPath, { recursive: true });
+            if (file.fieldname === 'dropFileHere') {
+              fs.mkdirSync('./uploads/advertiser/dropfiles', {
+                recursive: true,
+              });
             }
 
             cb(null, uploadPath);
