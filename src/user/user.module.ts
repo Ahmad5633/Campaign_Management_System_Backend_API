@@ -33,7 +33,6 @@ import { UserService } from './user.service';
 import { User, UserSchema } from './user.schema';
 import { ConfigModule } from '@nestjs/config';
 import { FileUploadService } from './fileupload.service';
-import { FileDownloadService } from './fileDownload.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
@@ -48,7 +47,7 @@ import { PassportModule } from '@nestjs/passport';
     PassportModule,
   ],
   controllers: [UserController],
-  providers: [UserService, FileUploadService, FileDownloadService],
+  providers: [UserService, FileUploadService],
   exports: [UserService],
 })
 export class UserModule {}

@@ -8,13 +8,13 @@ import {
   Param,
   Res,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { FileUploadService } from './fileupload.service';
-import { FileDownloadService } from './fileDownload.service';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import { Roles } from '../roleBasedAuth/roles.decorator';
@@ -37,7 +37,6 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly uploadService: FileUploadService,
-    private readonly downloadService: FileDownloadService,
   ) {}
 
   @Post('register')
@@ -85,28 +84,33 @@ export class UserController {
   ): Promise<User> {
     return this.uploadService.uploadFile(userId, file);
   }
-
-  @Get(':userId/download')
+  @Get(':userId/files/:fileId')
   @ApiOperation({ summary: 'Download a file for a user' })
-  @ApiParam({ name: 'userId', required: true, description: 'User ID' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiParam({ name: 'fileId', description: 'File ID' })
   @ApiResponse({ status: 200, description: 'File downloaded successfully.' })
   @ApiResponse({ status: 404, description: 'File not found.' })
   async downloadFile(
     @Param('userId') userId: string,
+    @Param('fileId') fileId: string,
     @Res() res: Response,
-  ): Promise<void> {
-    const file = await this.downloadService.downloadFile(userId);
-    if (!file) {
-      res.status(404).send('File not found');
-      return;
+  ) {
+    try {
+      const file = await this.uploadService.getFileById(userId, fileId);
+
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=${file.originalname}`,
+      );
+      res.setHeader('Content-Type', file.mimetype);
+      res.send(file.buffer);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        res.status(404).send('File not found');
+      } else {
+        res.status(500).send('Internal Server Error');
+      }
     }
-    res.setHeader('Content-Type', file.mimetype);
-    res.setHeader('Content-Length', file.size);
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=${file.filename}`,
-    );
-    res.send(file.buffer);
   }
 
   @Get('advertisers')

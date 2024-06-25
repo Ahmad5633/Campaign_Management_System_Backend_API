@@ -16,7 +16,6 @@ import { CreatePublisherDto } from './dto/create-publisher.dto';
 import { Publisher } from './publisher.schema';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ensureDirectoriesExist } from './fileutils';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
@@ -53,14 +52,6 @@ export class PublisherController {
         storage: diskStorage({
           destination: (req, file, cb) => {
             let uploadPath: string;
-            // if (file.fieldname === 'mediaKit') {
-            //   cb(null, './uploads/publisher/mediakits');
-            // } else if (file.fieldname === 'dropFileHere') {
-            //   cb(null, './uploads/publisher/dropfiles');
-            // } else {
-            //   cb(new Error('Unknown file field'), null);
-            // }
-
             if (file.fieldname === 'mediaKit') {
               uploadPath = './uploads/publisher/mediakits';
             } else if (file.fieldname === 'dropFileHere') {
@@ -109,7 +100,6 @@ export class PublisherController {
     @Body() createPublisherDto: CreatePublisherDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ): Promise<Publisher> {
-    ensureDirectoriesExist();
     return this.publisherService.create(createPublisherDto);
   }
 
