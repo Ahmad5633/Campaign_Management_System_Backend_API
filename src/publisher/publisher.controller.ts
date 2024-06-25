@@ -16,10 +16,12 @@ import { CreatePublisherDto } from './dto/create-publisher.dto';
 import { Publisher } from './publisher.schema';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ensureDirectoriesExist } from './fileutils';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
+import * as fs from 'fs';
 import {
   ApiTags,
   ApiOperation,
@@ -50,13 +52,38 @@ export class PublisherController {
       {
         storage: diskStorage({
           destination: (req, file, cb) => {
+            let uploadPath: string;
+            // if (file.fieldname === 'mediaKit') {
+            //   cb(null, './uploads/publisher/mediakits');
+            // } else if (file.fieldname === 'dropFileHere') {
+            //   cb(null, './uploads/publisher/dropfiles');
+            // } else {
+            //   cb(new Error('Unknown file field'), null);
+            // }
+
             if (file.fieldname === 'mediaKit') {
-              cb(null, './uploads/publisher/mediakits');
+              uploadPath = './uploads/publisher/mediakits';
             } else if (file.fieldname === 'dropFileHere') {
-              cb(null, './uploads/publisher/dropfiles');
+              uploadPath = './uploads/publisher/dropfiles';
             } else {
               cb(new Error('Unknown file field'), null);
+              return;
             }
+            fs.mkdirSync('./uploads', { recursive: true });
+            fs.mkdirSync('./uploads/publisher', { recursive: true });
+            if (file.fieldname === 'mediaKit') {
+              fs.mkdirSync('./uploads/publisher/mediakits', {
+                recursive: true,
+              });
+            }
+
+            if (file.fieldname === 'dropFileHere') {
+              fs.mkdirSync('./uploads/publisher/dropfiles', {
+                recursive: true,
+              });
+            }
+
+            cb(null, uploadPath);
           },
           filename: (req, file, cb) => {
             const uniqueSuffix =
@@ -82,6 +109,7 @@ export class PublisherController {
     @Body() createPublisherDto: CreatePublisherDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ): Promise<Publisher> {
+    ensureDirectoriesExist();
     return this.publisherService.create(createPublisherDto);
   }
 
