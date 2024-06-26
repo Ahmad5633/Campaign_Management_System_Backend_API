@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
+import * as fs from 'fs';
 import {
   ApiTags,
   ApiOperation,
@@ -32,10 +33,16 @@ import {
 @ApiTags('media-management')
 @Controller('media-management')
 export class MediaManagementController {
-  constructor(
-    private readonly mediaManagementService: MediaManagementService,
-  ) {}
+  constructor(private readonly mediaManagementService: MediaManagementService) {
+    this.ensureUploadDirectoryExists();
+  }
+  private ensureUploadDirectoryExists() {
+    const uploadPath = './uploads/mediaManagement/images';
 
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+  }
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
