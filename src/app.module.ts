@@ -28,7 +28,7 @@ import { MediaManagementModule } from './mediaManagement/mediaManagement.module'
     ComplaintsModule,
     PaymentModule,
     ChatModule,
-    MediaManagementModule,
+    // MediaManagementModule,
   ],
   controllers: [AppController],
   providers: [AppService],
