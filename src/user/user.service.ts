@@ -77,11 +77,39 @@ export class UserService {
     return !!user;
   }
 
-  async findAllAdvertisers(): Promise<User[]> {
-    return this.userModel.find({ role: 'advertiser' }).exec();
+  async findAllPublishers(
+    page: number = 1,
+    limit: number = 10,
+    sortBy: string = 'createdAt',
+    order: 'asc' | 'desc' = 'asc',
+  ): Promise<User[]> {
+    const offset = (page - 1) * limit;
+    const sortQuery: { [key: string]: 'asc' | 'desc' } = {};
+    sortQuery[sortBy] = order;
+
+    return this.userModel
+      .find({ role: 'publisher' })
+      .sort(sortQuery)
+      .skip(offset)
+      .limit(limit)
+      .exec();
   }
 
-  async findAllPublishers(): Promise<User[]> {
-    return this.userModel.find({ role: 'publisher' }).exec();
+  async findAllAdvertisers(
+    page: number = 1,
+    limit: number = 10,
+    sortBy: string = 'createdAt',
+    order: 'asc' | 'desc' = 'asc',
+  ): Promise<User[]> {
+    const offset = (page - 1) * limit;
+    const sortQuery: { [key: string]: 'asc' | 'desc' } = {};
+    sortQuery[sortBy] = order;
+
+    return this.userModel
+      .find({ role: 'advertiser' })
+      .sort(sortQuery)
+      .skip(offset)
+      .limit(limit)
+      .exec();
   }
 }

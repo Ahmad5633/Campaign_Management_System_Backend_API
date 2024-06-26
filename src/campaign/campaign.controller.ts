@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CampaignService } from './campaign.service';
 import { Campaign, CampaignDocument } from './campaign.schema';
@@ -55,8 +56,13 @@ export class CampaignController {
   @Get()
   @ApiOperation({ summary: 'Retrieve all Campaigns' })
   @ApiResponse({ status: 200, description: 'List of all campaigns' })
-  async findAll() {
-    return await this.campaignService.findAll();
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sort_by') sortBy: string = 'createdAt',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ): Promise<Campaign[]> {
+    return this.campaignService.findAll(page, limit, sortBy, order);
   }
 
   @Get(':id')

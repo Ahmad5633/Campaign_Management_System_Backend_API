@@ -9,6 +9,7 @@ import {
   Res,
   UseGuards,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.schema';
@@ -123,8 +124,13 @@ export class UserController {
     description: 'Advertisers retrieved successfully.',
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async getAllAdvertisers(): Promise<User[]> {
-    return this.userService.findAllAdvertisers();
+  async getAllAdvertisers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sort_by') sortBy: string = 'createdAt',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ): Promise<User[]> {
+    return this.userService.findAllAdvertisers(page, limit, sortBy, order);
   }
 
   @Get('publishers')
@@ -137,8 +143,13 @@ export class UserController {
     description: 'Publishers retrieved successfully.',
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async getAllPublishers(): Promise<User[]> {
-    return this.userService.findAllPublishers();
+  async getAllPublishers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sort_by') sortBy: string = 'createdAt',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ): Promise<User[]> {
+    return this.userService.findAllPublishers(page, limit, sortBy, order);
   }
 
   @Get(':userId')

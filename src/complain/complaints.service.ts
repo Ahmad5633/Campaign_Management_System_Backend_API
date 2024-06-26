@@ -17,7 +17,22 @@ export class ComplaintsService {
     return await createdComplaint.save();
   }
 
-  async getAllComplaints(): Promise<Complaint[]> {
-    return await this.complaintModel.find().exec();
+  async getAllComplaints(
+    page: number = 1,
+    limit: number = 10,
+    sortBy: string = 'createdAt',
+    order: 'asc' | 'desc' = 'asc',
+  ): Promise<Complaint[]> {
+    const offset = (page - 1) * limit;
+
+    const sortQuery: { [key: string]: 'asc' | 'desc' } = {};
+    sortQuery[sortBy] = order;
+
+    return this.complaintModel
+      .find()
+      .sort(sortQuery)
+      .skip(offset)
+      .limit(limit)
+      .exec();
   }
 }

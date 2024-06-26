@@ -1,8 +1,12 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, UseGuards } from '@nestjs/common';
 import { ComplaintsService } from './complaints.service';
 import { CreateComplaintDto } from './dto/create-complaint.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-
+import { Complaint } from './complaint.schema';
+import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
+import { RolesGuard } from '../roleBasedAuth/roles.guard';
+import { Roles } from '../roleBasedAuth/roles.decorator';
+import { UserRole } from '../user/user-role.enum';
 @ApiTags('Complaints')
 @Controller('complaints')
 export class ComplaintsController {
@@ -18,9 +22,16 @@ export class ComplaintsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @ApiOperation({ summary: 'Retrieve all complaints' })
   @ApiResponse({ status: 200, description: 'List of all complaints' })
-  async findAll() {
-    return this.complaintsService.getAllComplaints();
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sort_by') sortBy: string = 'createdAt',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ): Promise<Complaint[]> {
+    return this.complaintsService.getAllComplaints(page, limit, sortBy, order);
   }
 }

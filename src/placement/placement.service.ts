@@ -16,8 +16,23 @@ export class PlacementService {
     return newPlacement.save();
   }
 
-  async findAll(): Promise<Placement[]> {
-    return this.placementModel.find().exec();
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string,
+    order: 'asc' | 'desc',
+  ): Promise<Placement[]> {
+    const offset = (page - 1) * limit;
+
+    const sortQuery: { [key: string]: 'asc' | 'desc' } = {};
+    sortQuery[sortBy] = order;
+
+    return this.placementModel
+      .find()
+      .sort(sortQuery)
+      .skip(offset)
+      .limit(limit)
+      .exec();
   }
 
   async deletePlacement(id: string): Promise<string> {

@@ -13,6 +13,7 @@ import { PlacementModule } from './placement/placement.module';
 import { ComplaintsModule } from './complain/complaints.module';
 import { PaymentModule } from './payment/payment.module';
 import { ChatModule } from './chat/chat.module';
+import { MediaManagementModule } from './mediaManagement/mediaManagement.module';
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGO_URI),
@@ -27,6 +28,7 @@ import { ChatModule } from './chat/chat.module';
     ComplaintsModule,
     PaymentModule,
     ChatModule,
+    MediaManagementModule,
   ],
   controllers: [AppController],
   providers: [AppService],
