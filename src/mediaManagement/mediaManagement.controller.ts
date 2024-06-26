@@ -26,6 +26,7 @@ import {
   ApiConsumes,
   ApiBody,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
 @ApiTags('media-management')
@@ -88,16 +89,32 @@ export class MediaManagementController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all media management entries' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all media management entries.',
+    type: MediaManagement,
+    isArray: true,
+  })
   async findAll() {
     return this.mediaManagementService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a media management entry by ID' })
+  @ApiParam({ name: 'id', description: 'Media management entry ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the media management entry.',
+    type: MediaManagement,
+  })
   async findOne(@Param('id') id: string) {
     return this.mediaManagementService.findOne(id);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update a media management entry by ID' })
+  @ApiParam({ name: 'id', description: 'Media management entry ID' })
   async update(
     @Param('id') id: string,
     @Body() updateMediaDto: MediaManagement,
@@ -106,6 +123,9 @@ export class MediaManagementController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a media management entry by ID' })
+  @ApiParam({ name: 'id', description: 'Media management entry ID' })
+  @ApiResponse({ status: 200, description: 'Successfully deleted.' })
   async delete(@Param('id') id: string) {
     return this.mediaManagementService.delete(id);
   }
