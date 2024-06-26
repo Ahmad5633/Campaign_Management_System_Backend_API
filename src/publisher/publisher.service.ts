@@ -22,6 +22,10 @@ export class PublisherService {
     return this.publisherModel.find().exec();
   }
 
+  async findById(id: string): Promise<Publisher> {
+    return this.publisherModel.findById(id).exec();
+  }
+
   async deletePublisher(id: string): Promise<string> {
     const deletedPlacement = await this.publisherModel
       .findByIdAndDelete(id)

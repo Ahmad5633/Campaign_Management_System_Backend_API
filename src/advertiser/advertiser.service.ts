@@ -22,6 +22,10 @@ export class AdvertiserService {
     return this.advertiserModel.find().exec();
   }
 
+  async findById(id: string): Promise<Advertiser> {
+    return this.advertiserModel.findById(id).exec();
+  }
+
   async deleteAdvertiser(id: string): Promise<string> {
     const deletedPlacement = await this.advertiserModel
       .findByIdAndDelete(id)
