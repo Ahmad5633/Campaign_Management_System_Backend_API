@@ -18,8 +18,23 @@ export class PublisherService {
     return createdPublisher.save();
   }
 
-  async findAll(): Promise<Publisher[]> {
-    return this.publisherModel.find().exec();
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string,
+    order: 'asc' | 'desc',
+  ): Promise<Publisher[]> {
+    const offset = (page - 1) * limit;
+
+    const sortQuery: { [key: string]: 'asc' | 'desc' } = {};
+    sortQuery[sortBy] = order;
+
+    return this.publisherModel
+      .find()
+      .sort(sortQuery)
+      .skip(offset)
+      .limit(limit)
+      .exec();
   }
 
   async findById(id: string): Promise<Publisher> {

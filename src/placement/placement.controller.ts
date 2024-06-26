@@ -7,6 +7,7 @@ import {
   UseGuards,
   Delete,
   Param,
+  Query,
 } from '@nestjs/common';
 import { PlacementService } from './placement.service';
 import { CreatePlacementDto } from './dto/create-placement.dto';
@@ -21,6 +22,7 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
+import { Placement } from './placement.schema';
 
 @ApiTags('Placements')
 @Controller('placements')
@@ -42,8 +44,13 @@ export class PlacementController {
   @Get()
   @ApiOperation({ summary: 'Retrieve all placements' })
   @ApiResponse({ status: 200, description: 'List of all placements' })
-  async findAll() {
-    return this.placementService.findAll();
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sort_by') sortBy: string = 'createdAt',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ): Promise<Placement[]> {
+    return this.placementService.findAll(page, limit, sortBy, order);
   }
 
   @Delete(':id')

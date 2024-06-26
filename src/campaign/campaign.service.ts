@@ -23,8 +23,23 @@ export class CampaignService {
     return savedCampaign;
   }
 
-  async findAll(): Promise<Campaign[]> {
-    return await this.campaignModel.find().exec();
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string,
+    order: 'asc' | 'desc',
+  ): Promise<Campaign[]> {
+    const offset = (page - 1) * limit;
+
+    const sortQuery: { [key: string]: 'asc' | 'desc' } = {};
+    sortQuery[sortBy] = order;
+
+    return this.campaignModel
+      .find()
+      .sort(sortQuery)
+      .skip(offset)
+      .limit(limit)
+      .exec();
   }
 
   async findByShareLink(id: string): Promise<Campaign> {

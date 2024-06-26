@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, SortOrder } from 'mongoose';
 import { Advertiser, AdvertiserDocument } from './advertiser.schema';
 import { CreateAdvertiserDto } from './dto/create-advertiser.dto';
 
@@ -18,8 +18,23 @@ export class AdvertiserService {
     return createdAdvertiser.save();
   }
 
-  async findAll(): Promise<Advertiser[]> {
-    return this.advertiserModel.find().exec();
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string,
+    order: 'asc' | 'desc',
+  ): Promise<Advertiser[]> {
+    const offset = (page - 1) * limit;
+
+    const sortQuery: { [key: string]: SortOrder } = {};
+    sortQuery[sortBy] = order === 'asc' ? 'asc' : 'desc';
+
+    return this.advertiserModel
+      .find()
+      .sort(sortQuery)
+      .skip(offset)
+      .limit(limit)
+      .exec();
   }
 
   async findById(id: string): Promise<Advertiser> {

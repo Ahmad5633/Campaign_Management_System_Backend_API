@@ -9,6 +9,7 @@ import {
   Param,
   UseGuards,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { PublisherService } from './publisher.service';
@@ -106,8 +107,17 @@ export class PublisherController {
   @Get()
   @ApiOperation({ summary: 'Retrieve all publishers' })
   @ApiResponse({ status: 200, description: 'List of all publishers' })
-  async findAll() {
-    return this.publisherService.findAll();
+  // async findAll() {
+  //   return this.publisherService.findAll();
+  // }
+  // @Get()
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sort_by') sortBy: string = 'createdAt',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ): Promise<Publisher[]> {
+    return this.publisherService.findAll(page, limit, sortBy, order);
   }
 
   @Get(':id')

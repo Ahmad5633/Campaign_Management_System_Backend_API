@@ -9,6 +9,7 @@ import {
   Delete,
   Param,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { AdvertiserService } from './advertiser.service';
@@ -109,10 +110,14 @@ export class AdvertiserController {
   @Get()
   @ApiOperation({ summary: 'Retrieve all Advertisers' })
   @ApiResponse({ status: 200, description: 'List of all advertisers.' })
-  async findAll() {
-    return this.advertiserService.findAll();
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sort_by') sortBy: string = 'createdAt',
+    @Query('order') order: 'asc' | 'desc' = 'asc',
+  ): Promise<Advertiser[]> {
+    return this.advertiserService.findAll(page, limit, sortBy, order);
   }
-
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve Advertiser By Id' })
   @ApiParam({
