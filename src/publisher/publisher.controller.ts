@@ -110,6 +110,17 @@ export class PublisherController {
     return this.publisherService.findAll();
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Retrieve Publisher By Id' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'The ID of the publisher to find',
+  })
+  @ApiResponse({ status: 200, description: 'Get publisher by Id.' })
+  async findById(@Param('id') id: string) {
+    return this.publisherService.findById(id);
+  }
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)

@@ -103,7 +103,6 @@ export class AdvertiserController {
       dropFileHere?: Express.Multer.File[];
     },
   ): Promise<Advertiser> {
-    // Handle file information here if needed
     return this.advertiserService.create(createAdvertiserDto);
   }
 
@@ -112,6 +111,18 @@ export class AdvertiserController {
   @ApiResponse({ status: 200, description: 'List of all advertisers.' })
   async findAll() {
     return this.advertiserService.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Retrieve Advertiser By Id' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'The ID of the advertiser to find',
+  })
+  @ApiResponse({ status: 200, description: 'Get advertiser by Id.' })
+  async findById(@Param('id') id: string) {
+    return this.advertiserService.findById(id);
   }
 
   @Delete(':id')
