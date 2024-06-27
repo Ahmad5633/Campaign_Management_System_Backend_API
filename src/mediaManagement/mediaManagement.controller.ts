@@ -68,14 +68,14 @@ export class MediaManagementController {
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @UseInterceptors(
     FilesInterceptor('files', 10, {
-      limits: { fileSize: 50 * 1024 * 1024 }, // 50MB file size limit
+      limits: { fileSize: 50 * 1024 * 1024 },
     }),
   )
   async create(
     @Body() createMediaDto: MediaManagement,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    createMediaDto.uploadImages = []; // Initialize the uploadImages array
+    createMediaDto.uploadImages = [];
 
     if (files && files.length > 0) {
       await Promise.all(
@@ -86,7 +86,7 @@ export class MediaManagementController {
 
           try {
             await bucket.file(destination).save(file.buffer);
-            createMediaDto.uploadImages.push(destination); // Push the Firebase storage path
+            createMediaDto.uploadImages.push(destination);
           } catch (error) {
             console.error('Error uploading to Firebase:', error);
             throw new Error('Failed to upload file to Firebase');
