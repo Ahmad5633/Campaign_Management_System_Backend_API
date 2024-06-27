@@ -21,8 +21,7 @@ import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
-import * as fs from 'fs';
-import { bucket } from '../firebaseIntegration/firebase.config';
+import { bucket } from '../firebaseIntegration/firebase.config'; // Adjust this import based on your Firebase configuration
 import {
   ApiTags,
   ApiOperation,
@@ -52,16 +51,12 @@ export class PublisherController {
       ],
       {
         storage: diskStorage({
-          destination: (req, file, cb) => {
-            const uploadPath = './uploads/publisher';
-            fs.mkdirSync(uploadPath, { recursive: true });
-            cb(null, uploadPath);
-          },
+          destination: '',
           filename: (req, file, cb) => {
-            const uniqueSuffix =
-              Date.now() + '-' + Math.round(Math.random() * 1e9);
-            const ext = extname(file.originalname);
-            cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+            cb(
+              null,
+              `${file.fieldname}-${Date.now()}${extname(file.originalname)}`,
+            );
           },
         }),
         fileFilter: (req, file, cb) => {
@@ -118,9 +113,8 @@ export class PublisherController {
     file: Express.Multer.File,
     folder: string,
   ): Promise<string> {
-    const destination = `${folder}/${file.fieldname}-${Date.now()}-${
-      file.originalname
-    }`;
+    const destination = `${folder}/${file.fieldname}-${Date.now()}${extname(file.originalname)}`;
+
     await bucket.upload(file.path, {
       destination,
     });
@@ -130,8 +124,6 @@ export class PublisherController {
       action: 'read',
       expires: '03-01-2500',
     });
-
-    fs.unlinkSync(file.path);
 
     return url;
   }
