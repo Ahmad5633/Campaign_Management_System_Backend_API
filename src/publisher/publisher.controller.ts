@@ -51,7 +51,7 @@ export class PublisherController {
       ],
       {
         storage: diskStorage({
-          destination: './uploads', // Just for interceptor, won't be used
+          destination: '',
           filename: (req, file, cb) => {
             cb(
               null,
