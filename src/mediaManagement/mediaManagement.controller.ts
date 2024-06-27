@@ -13,8 +13,6 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { MediaManagementService } from './mediaManagement.service';
 import { MediaManagement } from './mediaManagement.schema';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import { Roles } from '../roleBasedAuth/roles.decorator';
@@ -28,6 +26,7 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
+import { extname } from 'path';
 
 @ApiTags('media-management')
 @Controller('media-management')
@@ -69,47 +68,34 @@ export class MediaManagementController {
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @UseInterceptors(
     FilesInterceptor('files', 10, {
-      storage: diskStorage({
-        destination: '',
-        filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
+      limits: { fileSize: 50 * 1024 * 1024 }, // 50MB file size limit
     }),
   )
   async create(
     @Body() createMediaDto: MediaManagement,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    const filePaths = files.map((file) => file.path);
-    createMediaDto.uploadImages = filePaths;
+    createMediaDto.uploadImages = []; // Initialize the uploadImages array
 
-    await Promise.all(
-      files.map((file) =>
-        this.uploadFileToFirebase(file).catch((error) => {
-          console.error('Error uploading to Firebase:', error);
+    if (files && files.length > 0) {
+      await Promise.all(
+        files.map(async (file) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const destination = `mediaManagement/images/${uniqueSuffix}${extname(file.originalname)}`;
+
+          try {
+            await bucket.file(destination).save(file.buffer);
+            createMediaDto.uploadImages.push(destination); // Push the Firebase storage path
+          } catch (error) {
+            console.error('Error uploading to Firebase:', error);
+            throw new Error('Failed to upload file to Firebase');
+          }
         }),
-      ),
-    );
+      );
+    }
 
     return this.mediaManagementService.create(createMediaDto);
-  }
-
-  async uploadFileToFirebase(file: Express.Multer.File): Promise<void> {
-    const filePath = file.path;
-    const destination = `mediaManagement/images/${file.filename}`;
-
-    return new Promise((resolve, reject) => {
-      bucket.upload(filePath, { destination }, (error, file) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      });
-    });
   }
 
   @Get()
