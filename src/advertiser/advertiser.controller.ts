@@ -61,7 +61,7 @@ export class AdvertiserController {
     if (files.logo && files.logo[0]) {
       const logo = files.logo[0];
       const logoUrl = await this.uploadFileToFirebase(logo, 'advertiser/logo');
-      createAdvertiserDto.logo = logoUrl; // Assign the URL directly to DTO property
+      createAdvertiserDto.logo = logoUrl;
     }
 
     if (files.dropFileHere && files.dropFileHere[0]) {
@@ -70,7 +70,7 @@ export class AdvertiserController {
         dropFile,
         'advertiser/dropfiles',
       );
-      createAdvertiserDto.dropFileHere = dropFileUrl; // Assign the URL directly to DTO property
+      createAdvertiserDto.dropFileHere = dropFileUrl;
     }
 
     return this.advertiserService.create(createAdvertiserDto);
