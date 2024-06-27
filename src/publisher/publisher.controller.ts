@@ -15,13 +15,11 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { PublisherService } from './publisher.service';
 import { CreatePublisherDto } from './dto/create-publisher.dto';
 import { Publisher } from './publisher.schema';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
-import { bucket } from '../firebaseIntegration/firebase.config'; // Adjust this import based on your Firebase configuration
+import { bucket } from '../firebaseIntegration/firebase.config';
 import {
   ApiTags,
   ApiOperation,
@@ -29,6 +27,7 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
+import { extname } from 'path';
 
 @ApiTags('Publishers')
 @Controller('publishers')
@@ -44,33 +43,10 @@ export class PublisherController {
   @ApiResponse({ status: 201, description: 'Publisher created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'mediaKit', maxCount: 1 },
-        { name: 'dropFileHere', maxCount: 1 },
-      ],
-      {
-        storage: diskStorage({
-          destination: '',
-          filename: (req, file, cb) => {
-            cb(
-              null,
-              `${file.fieldname}-${Date.now()}${extname(file.originalname)}`,
-            );
-          },
-        }),
-        fileFilter: (req, file, cb) => {
-          if (
-            file.fieldname === 'mediaKit' ||
-            file.fieldname === 'dropFileHere'
-          ) {
-            cb(null, true);
-          } else {
-            cb(new Error('Unknown file field'), false);
-          }
-        },
-      },
-    ),
+    FileFieldsInterceptor([
+      { name: 'mediaKit', maxCount: 1 },
+      { name: 'dropFileHere', maxCount: 1 },
+    ]),
   )
   async create(
     @Body() createPublisherDto: CreatePublisherDto,
@@ -113,10 +89,14 @@ export class PublisherController {
     file: Express.Multer.File,
     folder: string,
   ): Promise<string> {
-    const destination = `${folder}/${file.fieldname}-${Date.now()}${extname(file.originalname)}`;
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const destination = `${folder}/${uniqueSuffix}${extname(file.originalname)}`;
 
-    await bucket.upload(file.path, {
-      destination,
+    await bucket.file(destination).save(file.buffer, {
+      contentType: file.mimetype,
+      metadata: {
+        firebaseStorageDownloadTokens: uniqueSuffix,
+      },
     });
 
     const fileRef = bucket.file(destination);

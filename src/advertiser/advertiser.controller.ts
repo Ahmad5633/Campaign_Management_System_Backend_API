@@ -21,7 +21,6 @@ import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import { bucket } from '../firebaseIntegration/firebase.config';
 import { extname } from 'path';
-import { diskStorage } from 'multer';
 import {
   ApiTags,
   ApiOperation,
@@ -46,23 +45,10 @@ export class AdvertiserController {
   @ApiResponse({ status: 201, description: 'Advertiser created successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'logo', maxCount: 1 },
-        { name: 'dropFileHere', maxCount: 1 },
-      ],
-      {
-        storage: diskStorage({
-          destination: () => '', // No local directory creation
-          filename: (req, file, cb) => {
-            const uniqueSuffix =
-              Date.now() + '-' + Math.round(Math.random() * 1e9);
-            const ext = extname(file.originalname);
-            cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-          },
-        }),
-      },
-    ),
+    FileFieldsInterceptor([
+      { name: 'logo', maxCount: 1 },
+      { name: 'dropFileHere', maxCount: 1 },
+    ]),
   )
   async create(
     @Body() createAdvertiserDto: CreateAdvertiserDto,
@@ -72,11 +58,9 @@ export class AdvertiserController {
       dropFileHere?: Express.Multer.File[];
     },
   ): Promise<Advertiser> {
-    const fileUploadPromises = [];
-
     if (files.logo && files.logo[0]) {
       const logo = files.logo[0];
-      const logoUrl = await this.uploadFileToFirebase(logo, 'logos');
+      const logoUrl = await this.uploadFileToFirebase(logo, 'advertiser/logo');
       createAdvertiserDto.logo = logoUrl; // Assign the URL directly to DTO property
     }
 
@@ -84,7 +68,7 @@ export class AdvertiserController {
       const dropFile = files.dropFileHere[0];
       const dropFileUrl = await this.uploadFileToFirebase(
         dropFile,
-        'dropfiles',
+        'advertiser/dropfiles',
       );
       createAdvertiserDto.dropFileHere = dropFileUrl; // Assign the URL directly to DTO property
     }
@@ -96,11 +80,10 @@ export class AdvertiserController {
     file: Express.Multer.File,
     folder: string,
   ): Promise<string> {
-    const destination = `${folder}/${file.fieldname}-${Date.now()}${extname(file.originalname)}`;
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const destination = `${folder}/${uniqueSuffix}${extname(file.originalname)}`;
 
-    const fileBuffer = file.buffer; // Use file buffer directly
-
-    await bucket.file(destination).save(fileBuffer, {
+    await bucket.file(destination).save(file.buffer, {
       contentType: file.mimetype,
     });
 
@@ -139,7 +122,7 @@ export class AdvertiserController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Delete a Advertiser by its ID (admin only)' })
+  @ApiOperation({ summary: 'Delete an Advertiser by its ID (admin only)' })
   @ApiParam({
     name: 'id',
     required: true,
