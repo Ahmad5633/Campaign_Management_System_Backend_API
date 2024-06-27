@@ -19,7 +19,7 @@ import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
-import * as fs from 'fs';
+import { bucket } from '../firebaseIntegration/firebase.config';
 import {
   ApiTags,
   ApiOperation,
@@ -28,21 +28,13 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
-import { bucket } from '../firebaseIntegration/firebase.config';
 
 @ApiTags('media-management')
 @Controller('media-management')
 export class MediaManagementController {
-  constructor(private readonly mediaManagementService: MediaManagementService) {
-    this.ensureUploadDirectoryExists();
-  }
-
-  private ensureUploadDirectoryExists() {
-    const uploadPath = './uploads/mediaManagement/images';
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
-  }
+  constructor(
+    private readonly mediaManagementService: MediaManagementService,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -78,7 +70,7 @@ export class MediaManagementController {
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: diskStorage({
-        destination: './uploads/mediaManagement/images',
+        destination: '',
         filename: (req, file, cb) => {
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);

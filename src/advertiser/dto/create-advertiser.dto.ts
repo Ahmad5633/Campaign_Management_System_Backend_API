@@ -78,7 +78,7 @@ export class CreateAdvertiserDto {
   targetPerformanceMetrices?: string;
 
   @IsOptional()
-  logo?: File;
+  logo?: string;
 
   @IsString()
   @IsOptional()
