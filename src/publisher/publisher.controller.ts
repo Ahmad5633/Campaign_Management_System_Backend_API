@@ -89,13 +89,19 @@ export class PublisherController {
 
     if (files.mediaKit && files.mediaKit[0]) {
       const mediaKit = files.mediaKit[0];
-      const mediaKitUploadPromise = this.uploadFileToFirebase(mediaKit);
+      const mediaKitUploadPromise = this.uploadFileToFirebase(
+        mediaKit,
+        'publisher/mediakits',
+      );
       fileUploadPromises.push(mediaKitUploadPromise);
     }
 
     if (files.dropFileHere && files.dropFileHere[0]) {
       const dropFile = files.dropFileHere[0];
-      const dropFileUploadPromise = this.uploadFileToFirebase(dropFile);
+      const dropFileUploadPromise = this.uploadFileToFirebase(
+        dropFile,
+        'publisher/dropfiles',
+      );
       fileUploadPromises.push(dropFileUploadPromise);
     }
 
@@ -110,8 +116,11 @@ export class PublisherController {
 
   private async uploadFileToFirebase(
     file: Express.Multer.File,
+    folder: string,
   ): Promise<string> {
-    const destination = `${file.fieldname}-${Date.now()}-${file.originalname}`;
+    const destination = `${folder}/${file.fieldname}-${Date.now()}-${
+      file.originalname
+    }`;
     await bucket.upload(file.path, {
       destination,
     });
@@ -150,6 +159,7 @@ export class PublisherController {
   async findById(@Param('id') id: string) {
     return this.publisherService.findById(id);
   }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
@@ -163,7 +173,7 @@ export class PublisherController {
   @ApiResponse({ status: 404, description: 'Publisher not found' })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized: Only admin can delete this publiasher',
+    description: 'Unauthorized: Only admin can delete this publisher',
   })
   async deletePublisher(@Param('id') id: string): Promise<string> {
     const message = await this.publisherService.deletePublisher(id);
@@ -173,7 +183,7 @@ export class PublisherController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
-  @ApiOperation({ summary: 'Update an Publisher by ID' })
+  @ApiOperation({ summary: 'Update a Publisher by ID' })
   @ApiResponse({ status: 200, description: 'Publisher updated successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   async partialUpdate(
