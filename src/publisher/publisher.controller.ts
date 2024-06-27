@@ -22,6 +22,7 @@ import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import * as fs from 'fs';
+import { bucket } from '../firebaseIntegration/firebase.config';
 import {
   ApiTags,
   ApiOperation,
@@ -52,29 +53,8 @@ export class PublisherController {
       {
         storage: diskStorage({
           destination: (req, file, cb) => {
-            let uploadPath: string;
-            if (file.fieldname === 'mediaKit') {
-              uploadPath = './uploads/publisher/mediakits';
-            } else if (file.fieldname === 'dropFileHere') {
-              uploadPath = './uploads/publisher/dropfiles';
-            } else {
-              cb(new Error('Unknown file field'), null);
-              return;
-            }
-            fs.mkdirSync('./uploads', { recursive: true });
-            fs.mkdirSync('./uploads/publisher', { recursive: true });
-            if (file.fieldname === 'mediaKit') {
-              fs.mkdirSync('./uploads/publisher/mediakits', {
-                recursive: true,
-              });
-            }
-
-            if (file.fieldname === 'dropFileHere') {
-              fs.mkdirSync('./uploads/publisher/dropfiles', {
-                recursive: true,
-              });
-            }
-
+            const uploadPath = './uploads/publisher';
+            fs.mkdirSync(uploadPath, { recursive: true });
             cb(null, uploadPath);
           },
           filename: (req, file, cb) => {
@@ -99,18 +79,57 @@ export class PublisherController {
   )
   async create(
     @Body() createPublisherDto: CreatePublisherDto,
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles()
+    files: {
+      mediaKit?: Express.Multer.File[];
+      dropFileHere?: Express.Multer.File[];
+    },
   ): Promise<Publisher> {
+    const fileUploadPromises = [];
+
+    if (files.mediaKit && files.mediaKit[0]) {
+      const mediaKit = files.mediaKit[0];
+      const mediaKitUploadPromise = this.uploadFileToFirebase(mediaKit);
+      fileUploadPromises.push(mediaKitUploadPromise);
+    }
+
+    if (files.dropFileHere && files.dropFileHere[0]) {
+      const dropFile = files.dropFileHere[0];
+      const dropFileUploadPromise = this.uploadFileToFirebase(dropFile);
+      fileUploadPromises.push(dropFileUploadPromise);
+    }
+
+    const [mediaKitUrl, dropFileHereUrl] =
+      await Promise.all(fileUploadPromises);
+
+    createPublisherDto.mediaKit = mediaKitUrl;
+    createPublisherDto.dropFileHere = dropFileHereUrl;
+
     return this.publisherService.create(createPublisherDto);
+  }
+
+  private async uploadFileToFirebase(
+    file: Express.Multer.File,
+  ): Promise<string> {
+    const destination = `${file.fieldname}-${Date.now()}-${file.originalname}`;
+    await bucket.upload(file.path, {
+      destination,
+    });
+
+    const fileRef = bucket.file(destination);
+    const [url] = await fileRef.getSignedUrl({
+      action: 'read',
+      expires: '03-01-2500',
+    });
+
+    fs.unlinkSync(file.path);
+
+    return url;
   }
 
   @Get()
   @ApiOperation({ summary: 'Retrieve all publishers' })
   @ApiResponse({ status: 200, description: 'List of all publishers' })
-  // async findAll() {
-  //   return this.publisherService.findAll();
-  // }
-  // @Get()
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
