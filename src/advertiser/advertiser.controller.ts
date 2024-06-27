@@ -21,8 +21,6 @@ import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import { bucket } from '../firebaseIntegration/firebase.config';
 import { extname } from 'path';
-import * as fs from 'fs';
-import * as path from 'path';
 import { diskStorage } from 'multer';
 import {
   ApiTags,
@@ -55,26 +53,19 @@ export class AdvertiserController {
       ],
       {
         storage: diskStorage({
-          destination: '',
+          destination: () => '', // No local directory creation
           filename: (req, file, cb) => {
-            cb(
-              null,
-              `${file.fieldname}-${Date.now()}${extname(file.originalname)}`,
-            );
+            const uniqueSuffix =
+              Date.now() + '-' + Math.round(Math.random() * 1e9);
+            const ext = extname(file.originalname);
+            cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
           },
         }),
-        fileFilter: (req, file, cb) => {
-          if (file.fieldname === 'logo' || file.fieldname === 'dropFileHere') {
-            cb(null, true);
-          } else {
-            cb(new Error('Unknown file field'), false);
-          }
-        },
       },
     ),
   )
   async create(
-    @Body() createPublisherDto: CreateAdvertiserDto,
+    @Body() createAdvertiserDto: CreateAdvertiserDto,
     @UploadedFiles()
     files: {
       logo?: Express.Multer.File[];
@@ -85,28 +76,20 @@ export class AdvertiserController {
 
     if (files.logo && files.logo[0]) {
       const logo = files.logo[0];
-      const logoUploadPromise = this.uploadFileToFirebase(
-        logo,
-        'advertiser/logo',
-      );
-      fileUploadPromises.push(logoUploadPromise);
+      const logoUrl = await this.uploadFileToFirebase(logo, 'logos');
+      createAdvertiserDto.logo = logoUrl; // Assign the URL directly to DTO property
     }
 
     if (files.dropFileHere && files.dropFileHere[0]) {
       const dropFile = files.dropFileHere[0];
-      const dropFileUploadPromise = this.uploadFileToFirebase(
+      const dropFileUrl = await this.uploadFileToFirebase(
         dropFile,
-        'advertiser/dropfiles',
+        'dropfiles',
       );
-      fileUploadPromises.push(dropFileUploadPromise);
+      createAdvertiserDto.dropFileHere = dropFileUrl; // Assign the URL directly to DTO property
     }
 
-    const [logoUrl, dropFileHereUrl] = await Promise.all(fileUploadPromises);
-
-    createPublisherDto.logo = logoUrl;
-    createPublisherDto.dropFileHere = dropFileHereUrl;
-
-    return this.advertiserService.create(createPublisherDto);
+    return this.advertiserService.create(createAdvertiserDto);
   }
 
   private async uploadFileToFirebase(
@@ -115,12 +98,13 @@ export class AdvertiserController {
   ): Promise<string> {
     const destination = `${folder}/${file.fieldname}-${Date.now()}${extname(file.originalname)}`;
 
-    await bucket.upload(file.path, {
-      destination,
+    const fileBuffer = file.buffer; // Use file buffer directly
+
+    await bucket.file(destination).save(fileBuffer, {
+      contentType: file.mimetype,
     });
 
-    const fileRef = bucket.file(destination);
-    const [url] = await fileRef.getSignedUrl({
+    const [url] = await bucket.file(destination).getSignedUrl({
       action: 'read',
       expires: '03-01-2500',
     });
