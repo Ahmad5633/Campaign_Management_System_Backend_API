@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
+import * as fs from 'fs';
 import {
   ApiTags,
   ApiOperation,
@@ -26,15 +27,22 @@ import {
   ApiConsumes,
   ApiBody,
   ApiParam,
-  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { bucket } from '../firebaseIntegration/firebase.config';
 
 @ApiTags('media-management')
 @Controller('media-management')
 export class MediaManagementController {
-  constructor(
-    private readonly mediaManagementService: MediaManagementService,
-  ) {}
+  constructor(private readonly mediaManagementService: MediaManagementService) {
+    this.ensureUploadDirectoryExists();
+  }
+
+  private ensureUploadDirectoryExists() {
+    const uploadPath = './uploads/mediaManagement/images';
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -85,7 +93,31 @@ export class MediaManagementController {
   ) {
     const filePaths = files.map((file) => file.path);
     createMediaDto.uploadImages = filePaths;
+
+    await Promise.all(
+      files.map((file) =>
+        this.uploadFileToFirebase(file).catch((error) => {
+          console.error('Error uploading to Firebase:', error);
+        }),
+      ),
+    );
+
     return this.mediaManagementService.create(createMediaDto);
+  }
+
+  async uploadFileToFirebase(file: Express.Multer.File): Promise<void> {
+    const filePath = file.path;
+    const destination = `mediaManagement/images/${file.filename}`;
+
+    return new Promise((resolve, reject) => {
+      bucket.upload(filePath, { destination }, (error, file) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 
   @Get()
