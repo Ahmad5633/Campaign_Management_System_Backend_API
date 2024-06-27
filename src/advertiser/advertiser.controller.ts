@@ -55,7 +55,7 @@ export class AdvertiserController {
       ],
       {
         storage: diskStorage({
-          destination: './uploads',
+          destination: '',
           filename: (req, file, cb) => {
             cb(
               null,
