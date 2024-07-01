@@ -10,6 +10,7 @@ import {
   Param,
   Patch,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { AdvertiserService } from './advertiser.service';
@@ -39,8 +40,8 @@ export class AdvertiserController {
   @ApiOperation({ summary: 'Create a new Advertiser' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Create Advertiser',
     type: CreateAdvertiserDto,
+    description: 'Create Advertiser',
   })
   @ApiResponse({ status: 201, description: 'Advertiser created successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
@@ -58,22 +59,29 @@ export class AdvertiserController {
       dropFileHere?: Express.Multer.File[];
     },
   ): Promise<Advertiser> {
-    if (files.logo && files.logo[0]) {
-      const logo = files.logo[0];
-      const logoUrl = await this.uploadFileToFirebase(logo, 'advertiser/logo');
-      createAdvertiserDto.logo = logoUrl;
-    }
+    try {
+      if (files.logo && files.logo[0]) {
+        const logoUrl = await this.uploadFileToFirebase(
+          files.logo[0],
+          'advertiser/logo',
+        );
+        createAdvertiserDto.logo = logoUrl;
+      }
 
-    if (files.dropFileHere && files.dropFileHere[0]) {
-      const dropFile = files.dropFileHere[0];
-      const dropFileUrl = await this.uploadFileToFirebase(
-        dropFile,
-        'advertiser/dropfiles',
+      if (files.dropFileHere && files.dropFileHere[0]) {
+        const dropFileUrl = await this.uploadFileToFirebase(
+          files.dropFileHere[0],
+          'advertiser/dropfiles',
+        );
+        createAdvertiserDto.dropFileHere = dropFileUrl;
+      }
+
+      return await this.advertiserService.create(createAdvertiserDto);
+    } catch (error) {
+      throw new BadRequestException(
+        `Failed to create advertiser: ${error.message}`,
       );
-      createAdvertiserDto.dropFileHere = dropFileUrl;
     }
-
-    return this.advertiserService.create(createAdvertiserDto);
   }
 
   private async uploadFileToFirebase(
@@ -104,19 +112,19 @@ export class AdvertiserController {
     @Query('sort_by') sortBy: string = 'createdAt',
     @Query('order') order: 'asc' | 'desc' = 'asc',
   ): Promise<Advertiser[]> {
-    return this.advertiserService.findAll(page, limit, sortBy, order);
+    return await this.advertiserService.findAll(page, limit, sortBy, order);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve Advertiser By Id' })
   @ApiParam({
     name: 'id',
-    required: true,
     description: 'The ID of the advertiser to find',
+    required: true,
   })
   @ApiResponse({ status: 200, description: 'Get advertiser by Id.' })
-  async findById(@Param('id') id: string) {
-    return this.advertiserService.findById(id);
+  async findById(@Param('id') id: string): Promise<Advertiser> {
+    return await this.advertiserService.findById(id);
   }
 
   @Delete(':id')
@@ -125,8 +133,8 @@ export class AdvertiserController {
   @ApiOperation({ summary: 'Delete an Advertiser by its ID (admin only)' })
   @ApiParam({
     name: 'id',
-    required: true,
     description: 'The ID of the advertiser to delete',
+    required: true,
   })
   @ApiResponse({ status: 204, description: 'Advertiser deleted successfully' })
   @ApiResponse({ status: 404, description: 'Advertiser not found' })
@@ -135,8 +143,7 @@ export class AdvertiserController {
     description: 'Unauthorized: Only admin can delete this Advertiser',
   })
   async deleteAdvertiser(@Param('id') id: string): Promise<string> {
-    const message = await this.advertiserService.deleteAdvertiser(id);
-    return message;
+    return await this.advertiserService.deleteAdvertiser(id);
   }
 
   @Patch(':id')
@@ -149,6 +156,6 @@ export class AdvertiserController {
     @Param('id') id: string,
     @Body() updateAdvertiserDto: CreateAdvertiserDto,
   ): Promise<Advertiser> {
-    return this.advertiserService.partialUpdate(id, updateAdvertiserDto);
+    return await this.advertiserService.partialUpdate(id, updateAdvertiserDto);
   }
 }

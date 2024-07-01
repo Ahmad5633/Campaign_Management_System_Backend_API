@@ -48,6 +48,6 @@ import { PassportModule } from '@nestjs/passport';
   ],
   controllers: [UserController],
   providers: [UserService, FileUploadService],
-  exports: [UserService],
+  exports: [UserService, MongooseModule],
 })
 export class UserModule {}

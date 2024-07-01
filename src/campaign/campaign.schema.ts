@@ -44,8 +44,8 @@ export class Campaign {
   @Prop({ required: true })
   endDate: string;
 
-  @Prop({ required: true })
-  image: string;
+  @Prop([String])
+  image: string[];
 
   @Prop({ required: true })
   adGoal: string;

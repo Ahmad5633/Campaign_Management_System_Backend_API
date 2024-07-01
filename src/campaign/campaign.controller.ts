@@ -7,14 +7,19 @@ import {
   Delete,
   UseGuards,
   Query,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { CampaignService } from './campaign.service';
-import { Campaign, CampaignDocument } from './campaign.schema';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
 import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
+import { FileUploadService } from '../fileupload/fileupload.service';
+import { Campaign } from './campaign.schema';
+
 import {
   ApiTags,
   ApiOperation,
@@ -26,7 +31,10 @@ import {
 @ApiTags('Campaigns')
 @Controller('campaigns')
 export class CampaignController {
-  constructor(private readonly campaignService: CampaignService) {}
+  constructor(
+    private readonly campaignService: CampaignService,
+    private readonly fileUploadService: FileUploadService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new Campaign' })
@@ -42,10 +50,21 @@ export class CampaignController {
     },
   })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      limits: { fileSize: 50 * 1024 * 1024 },
+    }),
+  )
   async createCampaign(
     @Body() createCampaignDto: CreateCampaignDto,
+    @UploadedFiles() files: Express.Multer.File[],
   ): Promise<{ message: string; shareableLink: string }> {
-    const campaign: CampaignDocument =
+    const uploadImages = await this.fileUploadService.uploadFiles(
+      files,
+      'campaigns/images',
+    );
+    createCampaignDto.image = uploadImages;
+    const campaign =
       await this.campaignService.createCampaign(createCampaignDto);
     return {
       message: 'Campaign created successfully',

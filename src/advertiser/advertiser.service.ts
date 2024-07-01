@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder } from 'mongoose';
 import { Advertiser, AdvertiserDocument } from './advertiser.schema';
@@ -12,10 +16,14 @@ export class AdvertiserService {
   ) {}
 
   async create(createAdvertiserDto: CreateAdvertiserDto): Promise<Advertiser> {
-    const createdAdvertiser = new this.advertiserModel({
-      ...createAdvertiserDto,
-    });
-    return createdAdvertiser.save();
+    try {
+      const createdAdvertiser = new this.advertiserModel(createAdvertiserDto);
+      return await createdAdvertiser.save();
+    } catch (error) {
+      throw new BadRequestException(
+        `Failed to create advertiser: ${error.message}`,
+      );
+    }
   }
 
   async findAll(
@@ -25,48 +33,67 @@ export class AdvertiserService {
     order: 'asc' | 'desc',
   ): Promise<Advertiser[]> {
     const offset = (page - 1) * limit;
-
     const sortQuery: { [key: string]: SortOrder } = {};
     sortQuery[sortBy] = order === 'asc' ? 'asc' : 'desc';
 
-    return this.advertiserModel
-      .find()
-      .sort(sortQuery)
-      .skip(offset)
-      .limit(limit)
-      .exec();
+    try {
+      return await this.advertiserModel
+        .find()
+        .sort(sortQuery)
+        .skip(offset)
+        .limit(limit)
+        .exec();
+    } catch (error) {
+      throw new NotFoundException('Advertisers not found');
+    }
   }
 
   async findById(id: string): Promise<Advertiser> {
-    return this.advertiserModel.findById(id).exec();
+    try {
+      const advertiser = await this.advertiserModel.findById(id).exec();
+      if (!advertiser) {
+        throw new NotFoundException(`Advertiser with ID ${id} not found`);
+      }
+      return advertiser;
+    } catch (error) {
+      throw new NotFoundException(`Advertiser with ID ${id} not found`);
+    }
   }
 
   async deleteAdvertiser(id: string): Promise<string> {
-    const deletedPlacement = await this.advertiserModel
-      .findByIdAndDelete(id)
-      .exec();
-
-    if (!deletedPlacement) {
-      throw new NotFoundException('Placement not found');
+    try {
+      const deletedAdvertiser = await this.advertiserModel
+        .findByIdAndDelete(id)
+        .exec();
+      if (!deletedAdvertiser) {
+        throw new NotFoundException(`Advertiser with ID ${id} not found`);
+      }
+      return `Advertiser with ID ${id} has been successfully deleted`;
+    } catch (error) {
+      throw new NotFoundException(`Advertiser with ID ${id} not found`);
     }
-
-    return `Placement with ID ${id} has been successfully deleted`;
   }
 
   async partialUpdate(
     id: string,
     updateDto: CreateAdvertiserDto,
   ): Promise<Advertiser> {
-    const updatedAdvertiser = await this.advertiserModel.findByIdAndUpdate(
-      id,
-      { $set: updateDto },
-      { new: true, runValidators: true },
-    );
+    try {
+      const updatedAdvertiser = await this.advertiserModel
+        .findByIdAndUpdate(
+          id,
+          { $set: updateDto },
+          { new: true, runValidators: true },
+        )
+        .exec();
 
-    if (!updatedAdvertiser) {
+      if (!updatedAdvertiser) {
+        throw new NotFoundException(`Advertiser with ID ${id} not found`);
+      }
+
+      return updatedAdvertiser;
+    } catch (error) {
       throw new NotFoundException(`Advertiser with ID ${id} not found`);
     }
-
-    return updatedAdvertiser;
   }
 }

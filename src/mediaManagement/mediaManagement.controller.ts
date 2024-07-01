@@ -9,6 +9,8 @@ import {
   UploadedFiles,
   UseInterceptors,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { MediaManagementService } from './mediaManagement.service';
@@ -17,7 +19,7 @@ import { JwtAuthGuard } from '../roleBasedAuth/jwt-auth.guard';
 import { RolesGuard } from '../roleBasedAuth/roles.guard';
 import { Roles } from '../roleBasedAuth/roles.decorator';
 import { UserRole } from '../user/user-role.enum';
-import { bucket } from '../firebaseIntegration/firebase.config';
+import { FileUploadService } from '../fileupload/fileupload.service';
 import {
   ApiTags,
   ApiOperation,
@@ -26,13 +28,13 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
-import { extname } from 'path';
 
 @ApiTags('media-management')
 @Controller('media-management')
 export class MediaManagementController {
   constructor(
     private readonly mediaManagementService: MediaManagementService,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   @Post()
@@ -71,31 +73,27 @@ export class MediaManagementController {
       limits: { fileSize: 50 * 1024 * 1024 },
     }),
   )
-  async create(
+  async createCampaign(
     @Body() createMediaDto: MediaManagement,
     @UploadedFiles() files: Express.Multer.File[],
-  ) {
-    createMediaDto.uploadImages = [];
-
-    if (files && files.length > 0) {
-      await Promise.all(
-        files.map(async (file) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const destination = `mediaManagement/images/${uniqueSuffix}${extname(file.originalname)}`;
-
-          try {
-            await bucket.file(destination).save(file.buffer);
-            createMediaDto.uploadImages.push(destination);
-          } catch (error) {
-            console.error('Error uploading to Firebase:', error);
-            throw new Error('Failed to upload file to Firebase');
-          }
-        }),
+  ): Promise<{ message: string; data: MediaManagement }> {
+    try {
+      const uploadImages = await this.fileUploadService.uploadFiles(
+        files,
+        'mediaManagement/images',
+      );
+      createMediaDto.uploadImages = uploadImages;
+      const newMedia = await this.mediaManagementService.create(createMediaDto);
+      return {
+        message: 'Media Management created successfully',
+        data: newMedia,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Failed to create campaign',
+        HttpStatus.BAD_REQUEST,
       );
     }
-
-    return this.mediaManagementService.create(createMediaDto);
   }
 
   @Get()
@@ -107,7 +105,14 @@ export class MediaManagementController {
     isArray: true,
   })
   async findAll() {
-    return this.mediaManagementService.findAll();
+    try {
+      return await this.mediaManagementService.findAll();
+    } catch (error) {
+      throw new HttpException(
+        'Failed to get media entries',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Get(':id')
@@ -119,7 +124,14 @@ export class MediaManagementController {
     type: MediaManagement,
   })
   async findOne(@Param('id') id: string) {
-    return this.mediaManagementService.findOne(id);
+    try {
+      return await this.mediaManagementService.findOne(id);
+    } catch (error) {
+      throw new HttpException(
+        'Failed to get media entry',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Put(':id')
@@ -129,7 +141,14 @@ export class MediaManagementController {
     @Param('id') id: string,
     @Body() updateMediaDto: MediaManagement,
   ) {
-    return this.mediaManagementService.update(id, updateMediaDto);
+    try {
+      return await this.mediaManagementService.update(id, updateMediaDto);
+    } catch (error) {
+      throw new HttpException(
+        'Failed to update media entry',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Delete(':id')
@@ -137,6 +156,13 @@ export class MediaManagementController {
   @ApiParam({ name: 'id', description: 'Media management entry ID' })
   @ApiResponse({ status: 200, description: 'Successfully deleted.' })
   async delete(@Param('id') id: string) {
-    return this.mediaManagementService.delete(id);
+    try {
+      return await this.mediaManagementService.delete(id);
+    } catch (error) {
+      throw new HttpException(
+        'Failed to delete media entry',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

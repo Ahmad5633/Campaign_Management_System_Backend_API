@@ -52,6 +52,9 @@ export class CreateCampaignDto {
   endDate: string;
 
   @IsNotEmpty()
+  image: string[];
+
+  @IsNotEmpty()
   @IsString()
   adGoal: string;
 }

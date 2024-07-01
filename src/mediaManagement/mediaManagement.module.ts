@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MediaManagementService } from './mediaManagement.service';
 import { MediaManagementController } from './mediaManagement.controller';
+import { FileUploadService } from '../fileupload/fileupload.service';
 import {
   MediaManagement,
   MediaManagementSchema,
@@ -14,6 +15,6 @@ import {
     ]),
   ],
   controllers: [MediaManagementController],
-  providers: [MediaManagementService],
+  providers: [MediaManagementService, FileUploadService],
 })
 export class MediaManagementModule {}
