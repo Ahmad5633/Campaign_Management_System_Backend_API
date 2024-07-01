@@ -15,24 +15,6 @@ export class User {
   @Prop({ required: true, enum: UserRole })
   role: UserRole;
 
-  // @Prop()
-  // fileId: string;
-
-  // @Prop()
-  // filename: string;
-
-  // @Prop()
-  // originalname: string;
-
-  // @Prop()
-  // mimetype: string;
-
-  // @Prop()
-  // size: number;
-
-  // @Prop()
-  // buffer: Buffer;
-
   @Prop({
     type: [
       {
