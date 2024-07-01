@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  MediaManagement,
-  MediaManagementDocument,
-} from './mediaManagement.schema';
+import { MediaManagement } from './mediaManagement.schema';
 
 @Injectable()
 export class MediaManagementService {
   constructor(
     @InjectModel(MediaManagement.name)
-    private mediaManagementModel: Model<MediaManagementDocument>,
+    private readonly mediaManagementModel: Model<MediaManagement>,
   ) {}
 
   async create(createMediaDto: MediaManagement): Promise<MediaManagement> {
@@ -31,7 +28,9 @@ export class MediaManagementService {
     updateMediaDto: MediaManagement,
   ): Promise<MediaManagement> {
     return this.mediaManagementModel
-      .findByIdAndUpdate(id, updateMediaDto, { new: true })
+      .findByIdAndUpdate(id, updateMediaDto, {
+        new: true,
+      })
       .exec();
   }
 

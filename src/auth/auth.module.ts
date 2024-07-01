@@ -3,7 +3,6 @@ import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './google.strategy';
 import { AuthController } from './auth.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
 @Module({
   imports: [ConfigModule.forRoot(), PassportModule],
   controllers: [AuthController],

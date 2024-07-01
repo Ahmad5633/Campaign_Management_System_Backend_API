@@ -56,33 +56,38 @@ export class PublisherController {
       dropFileHere?: Express.Multer.File[];
     },
   ): Promise<Publisher> {
-    const fileUploadPromises = [];
+    try {
+      const fileUploadPromises = [];
 
-    if (files.mediaKit && files.mediaKit[0]) {
-      const mediaKit = files.mediaKit[0];
-      const mediaKitUploadPromise = this.uploadFileToFirebase(
-        mediaKit,
-        'publisher/mediakits',
-      );
-      fileUploadPromises.push(mediaKitUploadPromise);
+      if (files.mediaKit && files.mediaKit[0]) {
+        const mediaKit = files.mediaKit[0];
+        const mediaKitUploadPromise = this.uploadFileToFirebase(
+          mediaKit,
+          'publisher/mediakits',
+        );
+        fileUploadPromises.push(mediaKitUploadPromise);
+      }
+
+      if (files.dropFileHere && files.dropFileHere[0]) {
+        const dropFile = files.dropFileHere[0];
+        const dropFileUploadPromise = this.uploadFileToFirebase(
+          dropFile,
+          'publisher/dropfiles',
+        );
+        fileUploadPromises.push(dropFileUploadPromise);
+      }
+
+      const [mediaKitUrl, dropFileHereUrl] =
+        await Promise.all(fileUploadPromises);
+
+      createPublisherDto.mediaKit = mediaKitUrl;
+      createPublisherDto.dropFileHere = dropFileHereUrl;
+
+      return await this.publisherService.create(createPublisherDto);
+    } catch (error) {
+      // Handle errors, such as file upload failures
+      throw new Error(`Failed to create publisher: ${error.message}`);
     }
-
-    if (files.dropFileHere && files.dropFileHere[0]) {
-      const dropFile = files.dropFileHere[0];
-      const dropFileUploadPromise = this.uploadFileToFirebase(
-        dropFile,
-        'publisher/dropfiles',
-      );
-      fileUploadPromises.push(dropFileUploadPromise);
-    }
-
-    const [mediaKitUrl, dropFileHereUrl] =
-      await Promise.all(fileUploadPromises);
-
-    createPublisherDto.mediaKit = mediaKitUrl;
-    createPublisherDto.dropFileHere = dropFileHereUrl;
-
-    return this.publisherService.create(createPublisherDto);
   }
 
   private async uploadFileToFirebase(
@@ -117,7 +122,7 @@ export class PublisherController {
     @Query('sort_by') sortBy: string = 'createdAt',
     @Query('order') order: 'asc' | 'desc' = 'asc',
   ): Promise<Publisher[]> {
-    return this.publisherService.findAll(page, limit, sortBy, order);
+    return await this.publisherService.findAll(page, limit, sortBy, order);
   }
 
   @Get(':id')
@@ -128,8 +133,9 @@ export class PublisherController {
     description: 'The ID of the publisher to find',
   })
   @ApiResponse({ status: 200, description: 'Get publisher by Id.' })
-  async findById(@Param('id') id: string) {
-    return this.publisherService.findById(id);
+  @ApiResponse({ status: 404, description: 'Publisher not found.' })
+  async findById(@Param('id') id: string): Promise<Publisher> {
+    return await this.publisherService.findById(id);
   }
 
   @Delete(':id')
@@ -162,6 +168,6 @@ export class PublisherController {
     @Param('id') id: string,
     @Body() updatePublisherDto: CreatePublisherDto,
   ): Promise<Publisher> {
-    return this.publisherService.partialUpdate(id, updatePublisherDto);
+    return await this.publisherService.partialUpdate(id, updatePublisherDto);
   }
 }

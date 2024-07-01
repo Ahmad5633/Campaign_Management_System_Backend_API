@@ -8,26 +8,23 @@ import { CreatePublisherDto } from './dto/create-publisher.dto';
 export class PublisherService {
   constructor(
     @InjectModel(Publisher.name)
-    private publisherModel: Model<PublisherDocument>,
+    private readonly publisherModel: Model<PublisherDocument>,
   ) {}
 
   async create(createPublisherDto: CreatePublisherDto): Promise<Publisher> {
-    const createdPublisher = new this.publisherModel({
-      ...createPublisherDto,
-    });
+    const createdPublisher = new this.publisherModel(createPublisherDto);
     return createdPublisher.save();
   }
 
   async findAll(
     page: number,
     limit: number,
-    sortBy: string,
-    order: 'asc' | 'desc',
+    sortBy: string = 'createdAt',
+    order: 'asc' | 'desc' = 'asc',
   ): Promise<Publisher[]> {
     const offset = (page - 1) * limit;
 
-    const sortQuery: { [key: string]: 'asc' | 'desc' } = {};
-    sortQuery[sortBy] = order;
+    const sortQuery = { [sortBy]: order };
 
     return this.publisherModel
       .find()
@@ -38,33 +35,33 @@ export class PublisherService {
   }
 
   async findById(id: string): Promise<Publisher> {
-    return this.publisherModel.findById(id).exec();
+    const publisher = await this.publisherModel.findById(id).exec();
+    if (!publisher) {
+      throw new NotFoundException(`Publisher with ID ${id} not found`);
+    }
+    return publisher;
   }
 
   async deletePublisher(id: string): Promise<string> {
-    const deletedPlacement = await this.publisherModel
+    const deletedPublisher = await this.publisherModel
       .findByIdAndDelete(id)
       .exec();
-
-    if (!deletedPlacement) {
-      throw new NotFoundException('Placement not found');
+    if (!deletedPublisher) {
+      throw new NotFoundException(`Publisher with ID ${id} not found`);
     }
-
-    return `Placement with ID ${id} has been successfully deleted`;
+    return `Publisher with ID ${id} has been successfully deleted`;
   }
 
   async partialUpdate(
     id: string,
     updateDto: CreatePublisherDto,
   ): Promise<Publisher> {
-    const updatedPublisher = await this.publisherModel.findByIdAndUpdate(
-      id,
-      { $set: updateDto },
-      { new: true, runValidators: true },
-    );
+    const updatedPublisher = await this.publisherModel
+      .findByIdAndUpdate(id, updateDto, { new: true, runValidators: true })
+      .exec();
 
     if (!updatedPublisher) {
-      throw new NotFoundException(`Advertiser with ID ${id} not found`);
+      throw new NotFoundException(`Publisher with ID ${id} not found`);
     }
 
     return updatedPublisher;
