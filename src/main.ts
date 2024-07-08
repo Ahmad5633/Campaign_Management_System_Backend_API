@@ -9,6 +9,8 @@ async function bootstrap() {
     app.enableCors();
   }
 
+  app.useStaticAssets(join(__dirname, '..', 'node_modules', 'swagger-ui-dist'));
+
   const config = new DocumentBuilder()
     .setTitle('Campaign Management System')
     .setDescription('This website is used for Advertisement Purposes')
